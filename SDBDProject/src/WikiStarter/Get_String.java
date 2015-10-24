@@ -11,7 +11,7 @@
  * 2015
  * University of Coimbra
  */
-package clientWikiStarter;
+package WikiStarter;
 
 /**
  * @author Manuel Madeira Amado
@@ -21,39 +21,31 @@ package clientWikiStarter;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-public class Get_Option {
-
-    public int min_value;
-    public int max_value;
-
-    public Get_Option(int max) {
-
-        min_value = 0;
-        max_value = max;
-
+public class Get_String {
+    
+    public Get_String() {
     }
 
-    public int get_option() {
+    public String get_string(String name) {
 
         String input;
-        int option = 0; //refault is zero or return
+        String str_name = name;
 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
         try {
             input = br.readLine();
-            option = Integer.parseInt(input);
-            if (option >= max_value || option <= 0) {
+            if (input == null) {
                 Exception e = new Exception();
                 throw e;
             } else {
             }
         } catch (Exception e) {
-            System.out.println("Invalid Option");
-            option = get_option(); //possível problema de recursão
+            System.out.println("Invalid " + str_name);
+            input = get_string(str_name); //possível problema de recursão
         }
 
-        return option;
+        return input;
     }
 
 }
