@@ -47,7 +47,7 @@ public class Message implements Serializable {
         answer_string = "";
         answer_int = 0;
     }
-    
+      
     public long get_message_number(){
         return message_number;
     }

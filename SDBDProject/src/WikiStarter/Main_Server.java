@@ -11,7 +11,12 @@
  * 2015
  * University of Coimbra
  */
-
+/**
+ *
+ * Servidor Eco de teste
+ *
+ *
+ */
 package WikiStarter;
 
 /**
@@ -19,41 +24,86 @@ package WikiStarter;
  * @author Alexandra Leandro
  * @author Inês Fidalgo
  */
-
-import java.io.*;
+// TCPServer2.java: Multithreaded server
 import java.net.*;
+import java.io.*;
 
 public class Main_Server {
 
-   public static void main(String[] arg) {
+    public static void main(String args[]) {
+        int numero = 0;
 
-      Message msg = null;
+        try {
+            int serverPort = 6000;
+            System.out.println("A Escuta no Porto 6000");
+            ServerSocket listenSocket = new ServerSocket(serverPort);
+            System.out.println("LISTEN SOCKET=" + listenSocket);
+            while (true) {
+                Socket clientSocket = listenSocket.accept(); // BLOQUEANTE
+                System.out.println("CLIENT_SOCKET (created at accept())=" + clientSocket);
+                numero++;
+                new Connection(clientSocket, numero);
+            }
+        } catch (IOException e) {
+            System.out.println("Listen:" + e.getMessage());
+        }
+    }
+}
+//= Thread para tratar de cada canal de comunicação com um cliente
 
-      try {
+class Connection extends Thread {
 
-         ServerSocket socketConnection = new ServerSocket(6000);
+    ObjectInputStream in;
+    ObjectOutputStream out;
+    Socket clientSocket;
+    int thread_number;
+    Message msg = null;
+    String o;
 
-         System.out.println("Server Waiting");
+    public Connection(Socket aClientSocket, int numero) {
+        thread_number = numero;
+        try {
+            clientSocket = aClientSocket;
+            in = new ObjectInputStream(clientSocket.getInputStream());
+            out = new ObjectOutputStream(clientSocket.getOutputStream());
+            this.start();
+        } catch (IOException e) {
+            System.out.println("Connection:" + e.getMessage());
+        }
+    }
+    //=============================
 
-         Socket pipe = socketConnection.accept();
+    public void run() {
 
-         ObjectInputStream serverInputStream = new ObjectInputStream(pipe.getInputStream());
+        try {
+            while (true) {
 
-         ObjectOutputStream serverOutputStream = new ObjectOutputStream(pipe.getOutputStream());
+                msg = (Message) in.readObject();
 
-         msg = (Message)serverInputStream.readObject();
+                System.out.println("T[" + thread_number + "] Recebeu pedido: " + msg.get_message_number());
 
-         msg.set_answer_boolean(true);
-         System.out.println(msg.get_message_number());
-         
-         serverOutputStream.writeObject(msg);
+                o = msg.get_request();
 
-         serverInputStream.close();
-         serverOutputStream.close();
+//                switch (o) {
+//                    case "user_login":
+//                        msg.set_answer_string("user_found");
+//                        out.writeObject(msg);
+//                    case "register_user":
+//                        msg.set_answer_string("user_created");
+//                        out.writeObject(msg);
+//                    //case "user_login": msg.set_answer_string("user_found");
+//                    //  case "user_login": msg.set_answer_string("user_found");
+//                }
+                out.writeObject(msg);
+                System.out.println("eviou");
+            }
+        } catch (EOFException e) {
+            System.out.println("EOF:" + e);
+        } catch (IOException e) {
+            System.out.println("IO:" + e);
+        } catch (ClassNotFoundException e) {
+            System.out.println("CNF:" + e);
+        }
 
-
-      }  catch(Exception e) {System.out.println(e); 
-      }
-   }
-
+    }
 }

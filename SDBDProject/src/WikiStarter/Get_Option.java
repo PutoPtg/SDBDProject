@@ -43,7 +43,7 @@ public class Get_Option {
         try {
             input = br.readLine();
             option = Integer.parseInt(input);
-            if (option >= max_value || option <= 0) {
+            if (option >= max_value || option < 0) {
                 Exception e = new Exception();
                 throw e;
             } else {
