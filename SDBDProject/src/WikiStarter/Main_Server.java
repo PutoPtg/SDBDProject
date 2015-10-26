@@ -44,6 +44,7 @@ public class Main_Server {
          msg = (Message)serverInputStream.readObject();
 
          msg.set_answer_boolean(true);
+         System.out.println(msg.get_message_number());
          
          serverOutputStream.writeObject(msg);
 

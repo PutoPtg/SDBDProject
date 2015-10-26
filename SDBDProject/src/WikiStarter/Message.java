@@ -19,12 +19,13 @@ package WikiStarter;
  * @author Inês Fidalgo
  */
 import java.io.*;
+import java.security.Timestamp;
 import java.util.*;
 import java.text.SimpleDateFormat;
 
 public class Message implements Serializable {
 
-    private String message_number;
+    private long message_number;
     private String username;
     private String password;
     private String last_menu;
@@ -34,10 +35,9 @@ public class Message implements Serializable {
     private String answer_string;
     private int answer_int;
 
-    public Message(String a_username, String a_password, String a_menu) {
+    public Message(String a_username, String a_password, String a_menu){
 
-        Calendar now = Calendar.getInstance();
-        message_number = new SimpleDateFormat("yyyyMMddHHmmss", Locale.ENGLISH).format(now);
+        message_number = Calendar.getInstance().getTimeInMillis();
         username = a_username;
         password = a_password;
         last_menu = a_menu;
@@ -48,7 +48,7 @@ public class Message implements Serializable {
         answer_int = 0;
     }
     
-    public String get_message_number(){
+    public long get_message_number(){
         return message_number;
     }
     
