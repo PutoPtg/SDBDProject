@@ -22,11 +22,12 @@ package WikiStarter;
  */
 import java.net.*;
 import java.io.*;
+import java.util.Calendar;
 
 public class Main_Client extends Thread {
 
-    static ObjectInputStream in = null;
-    static ObjectOutputStream out = null;
+    static BufferedReader in = null; 
+    static PrintWriter out = null;
     static Socket s;
 
     static String IP1 = "0.0.0.0";
@@ -45,7 +46,7 @@ public class Main_Client extends Thread {
         boolean connected = false;
         boolean first_round = true;
 
-        while (!connected && counter < 4) {
+        while (connected == false && counter < 4) {
             counter++;
             if (s != null) {
                 try {
@@ -59,9 +60,9 @@ public class Main_Client extends Thread {
             try {
 
                 Thread.sleep(2000);
-                s = new Socket(main_ip, 6000);
-                out = new ObjectOutputStream(s.getOutputStream());
-                in = new ObjectInputStream(s.getInputStream());
+                s = new Socket(main_ip, 11111);
+                in = new BufferedReader(new InputStreamReader(s.getInputStream())); 
+                out = new PrintWriter(new OutputStreamWriter(s.getOutputStream())); 
                 counter = 0;
                 connected = true;
             } catch (UnknownHostException e) {
@@ -71,7 +72,7 @@ public class Main_Client extends Thread {
             } catch (IOException e) {
                 System.out.println("IO:" + e.getMessage());
             } catch (InterruptedException e) {
-                //System.out.println("IO:" + e.getMessage());
+                System.out.println("IO:" + e.getMessage());
             }
         }
 
@@ -89,26 +90,39 @@ public class Main_Client extends Thread {
         }
     }
 
-    private static Message courier(Message msg) {
-
-        do {
-            try {
-                out.writeObject(msg);
-                msg = (Message) in.readObject();
-            } catch (UnknownHostException e) {
-                System.out.println("Sock:" + e.getMessage());
-            } catch (EOFException e) {
-                System.out.println("EOF:" + e.getMessage());
-            } catch (IOException | NullPointerException e) {
-                System.out.println("IO ligaçao com o caralho:" + e.getMessage());
-                connect();
-            } catch (ClassNotFoundException e) {
-                System.out.println("ClassNotFound:" + e.getMessage());
-            }
-        } while (msg.get_answer_boolean() == false);
-
-        return msg;
-    }
+//    private static Message courier(String username, String password, String request) {
+//
+//        //do {
+//            try {
+//                           
+//                
+//                
+//         
+//    
+//            } catch (UnknownHostException e) {
+//                System.out.println("Sock:" + e.getMessage());
+//            } catch (EOFException e) {
+//                System.out.println("EOF:" + e.getMessage());
+//            } catch (IOException | NullPointerException e) {
+//                System.out.println("IO ligaçao com o caralho:" + e.getMessage());
+//                //connect();
+//            } catch (ClassNotFoundException e) {
+//                System.out.println("ClassNotFound:" + e.getMessage());
+//            }
+//            
+//            finally {
+//                // Clean up 
+//                try {
+//                    in.close();
+//                    out.close();
+//                    s.close();
+//                } catch (IOException ioe) {
+//                    ioe.printStackTrace();
+//                }
+//            }
+//        //} while (msg.get_answer_boolean() == false); 
+//                        return msg;
+//    }
 
     /* Menu de arranque do sistema
      *  by Manuel
@@ -142,6 +156,11 @@ public class Main_Client extends Thread {
 
         String username;
         String password;
+        String request;
+        String reply;
+        String answer;
+        String msgID;
+        
         Get_String str = new Get_String();
 
         System.out.println("Login");
@@ -151,17 +170,45 @@ public class Main_Client extends Thread {
         password = str.get_string("Password");
         System.out.println("");
 
-        Message msg = new Message(username, password, "login");
-        msg.set_request("user_login");
-
-        msg = courier(msg);
-
-        if (msg.get_answer_string() == "user_found") {
+        long message_number = Calendar.getInstance().getTimeInMillis();
+        msgID = Long.toString(message_number);
+        
+        
+        try {
+            
+            out.println(msgID);
+            out.println(username);
+            out.println(password);
+            out.println("login");            
+            out.flush();
+            
+            reply = in.readLine();
+            
+            if ("user_found".equals(reply)) {
             System.out.println("Accepted");
             menu_welcome(username);
         } else {
-            System.out.println("false");
+            System.out.println("User Not Found");
         }
+         
+    
+            } catch (UnknownHostException e) {
+                System.out.println("Sock:" + e.getMessage());
+            } catch (EOFException e) {
+                System.out.println("EOF:" + e.getMessage());
+            } catch (IOException | NullPointerException e) {
+                System.out.println("IO ligaçao com o caralho:" + e.getMessage());
+                //connect();
+            } //catch (ClassNotFoundException e) {
+//                System.out.println("ClassNotFound:" + e.getMessage());
+//            }
+        
+        
+        
+
+        
+
+        
     }
 
     private static void menu_register() {
@@ -182,7 +229,7 @@ public class Main_Client extends Thread {
         Message msg = new Message(username, password, "login");
         msg.set_request("register_user");
 
-        msg = courier(msg);
+        //msg = courier(msg);
 
         if (msg.get_answer_string() == "user_found") {
             System.out.println("Username already in use, choose another.");    
