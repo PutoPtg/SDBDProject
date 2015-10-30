@@ -13,6 +13,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Main_Server {
     
@@ -25,6 +28,8 @@ public class Main_Server {
     static int twinPORT;
     static String databaseIP;
     static int databasePORT;
+    static String twinNAME;
+    static int udpPORT;
 
     ServerSocket myServerSocket;
     boolean ServerOn = true;
@@ -97,19 +102,33 @@ public class Main_Server {
                 } 
            line = bufferedReader.readLine();
            ownIP = line;
+           System.out.println("My IP: " + ownIP);
            line = bufferedReader.readLine();
            ownPORT = Integer.parseInt(line);
+           System.out.println("My PORT: " + ownPORT);
            line = bufferedReader.readLine();
            twinIP = line;
+           System.out.println("My Twin IP: " + twinIP);
            line = bufferedReader.readLine();
            twinPORT = Integer.parseInt(line);
+           System.out.println("My Twin PORT: " + twinPORT);
            line = bufferedReader.readLine();
            databaseIP = line;
+           System.out.println("My Database IP: " + databaseIP);
            line = bufferedReader.readLine();
            databasePORT = Integer.parseInt(line);
-  
+           System.out.println("My Database PORT: " + databasePORT);
+            line = bufferedReader.readLine();
+           twinNAME = line;
+           System.out.println("My twin's name: " + twinNAME);
+           line = bufferedReader.readLine();
+           udpPORT = Integer.parseInt(line);
+           System.out.println("Conventioned UDP Port: " + udpPORT);
+           
+           
            // Always close files.
-            bufferedReader.close();         
+            bufferedReader.close();    
+            System.out.println("Successfull Configuration");
         }
         catch(FileNotFoundException ex) {
             System.out.println(
@@ -128,30 +147,44 @@ public class Main_Server {
         
     }
     
-    private static void udp_ping(){
-        
+    private static void udp_ping() {
+        System.out.println("Starting Ping Pong Match!");
+        System.out.println("Player TWO");
+        DatagramSocket skt = null;
+        String str;
+        int count = 0;
         try {
-            //while(true){
-            DatagramSocket primarySocket = new DatagramSocket();
-            InetAddress IPAddress = InetAddress.getByName("localhost");
-     
-            byte[] sendData = new byte[1024];
-            byte[] receiveData = new byte[1024];
-            
-            String sentence = "Ping!";
-            sendData = sentence.getBytes();
-            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 9877);
-            primarySocket.send(sendPacket);
-            
-            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-            primarySocket.receive(receivePacket);
-            String modifiedSentence = new String(receivePacket.getData());
-            System.out.println("FROM SERVER:" + modifiedSentence);
-            primarySocket.close();
-           // }
-        } catch (IOException e) {
-System.out.println("udp ping: "+e);
+            skt = new DatagramSocket();
+
+            while (count < 6) {
+                try {
+                    str = "Ping";
+                    System.out.println(str);
+                    byte[] n = str.getBytes();
+                    InetAddress endereco = InetAddress.getByName(twinNAME);
+                    DatagramPacket enviar = new DatagramPacket(n, n.length, endereco, udpPORT);
+                    skt.send(enviar);
+                    Thread.sleep(1000);
+
+                    byte[] buffer = new byte[1000];
+                    DatagramPacket resposta = new DatagramPacket(buffer, buffer.length);
+
+                    skt.setSoTimeout(2000); //Waits 2 seconds for the answer
+                    skt.receive(resposta);
+                    str = new String(resposta.getData(), 0, resposta.getLength());
+                    System.out.println(str + " " + count + "Points");
+                    count = 0;
+                } catch (IOException es) {
+                    count++;
+                    System.out.println(count + "point(s) for me!");
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Main_Server.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        } catch (SocketException e) {
+            System.out.println("UDP Socket Error: " + e);
         }
+
     }
 
     
@@ -166,16 +199,18 @@ System.out.println("udp ping: "+e);
             BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
             PrintWriter out = new PrintWriter(new OutputStreamWriter(s.getOutputStream()));
 
-            out.println("Twin_Fake");
-            out.println("TwinServer");
-            out.println("Checking");
-            out.println("login");
+            out.println("login Twin_Fake TwinServer Checking");
             out.flush();
 
             String reply = in.readLine();
 
             if ("user_found".equals(reply)) {
+                if (primary == true){
+                    System.out.println("Sorry about that crash....");
+                }
                 primary = false;
+                System.out.println("Becoming Secondary Server.");
+                
             }
             
             in.close();
@@ -183,7 +218,9 @@ System.out.println("udp ping: "+e);
             s.close();
             
         } catch (Exception e) {
-            System.out.println("Twin Server Not Responding:" + e.getMessage());
+            primary = true;
+            System.out.println("Twin Server Not Responding");
+            System.out.println("Becoming Primary.");
         }
         
         
@@ -194,14 +231,17 @@ System.out.println("udp ping: "+e);
         //reads configuration file
         read_config_file();
         
-        //tests twin to check if he is working as primary
-        if(primary == true){
-            check_twin_status();
-        }
+        //tests twin to check if he is working as primary    
+        check_twin_status();
+        
         //blocks in secondary mode if it is on
         if(primary == false){
-         udp_ping();   
+         do{
+            udp_ping();
+            check_twin_status();
+         }while(primary == false);
         }      
+              
         //starts TCP server
         new Main_Server();        
     } 
@@ -210,22 +250,30 @@ System.out.println("udp ping: "+e);
     class UDP_Ping_Pong extends Thread {
 
         public void run() {
+             System.out.println("Starting Ping Pong Match!");
+              System.out.println("Player ONE");
+              
+              DatagramSocket skt = null;
+                String str;
+              
             try {
-                DatagramSocket serverSocket = new DatagramSocket(9876);
-                byte[] receiveData = new byte[1024];
-                byte[] sendData = new byte[1024];
-//                while (true) {
-//                    DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-//                    serverSocket.receive(receivePacket);
-//                    String sentence = new String(receivePacket.getData());
-//                    System.out.println("RECEIVED: " + sentence);
-//                    InetAddress IPAddress = receivePacket.getAddress();
-//                    int port = receivePacket.getPort();
-//                    sentence = "Pong!";
-//                    sendData = sentence.getBytes();
-//                    DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
-//                    serverSocket.send(sendPacket);
-//                }
+                skt = new DatagramSocket(udpPORT);
+                while (true) {
+                    
+                   
+                    byte[] buffer = new byte[1000];
+                    DatagramPacket recebido = new DatagramPacket(buffer, buffer.length);
+                    skt.receive(recebido);
+                    str = new String(recebido.getData(), 0, recebido.getLength());
+                    System.out.println(str);             
+                    
+                    str = "Pong";
+                    System.out.println(str);
+                    buffer = str.getBytes();
+                    DatagramPacket enviar = new DatagramPacket(buffer, buffer.length, recebido.getAddress(), recebido.getPort());
+                    skt.send(enviar);
+
+                }
             } catch (IOException e) {
                 System.out.println("Ping Pong Error!" + e);
             }
@@ -258,6 +306,7 @@ System.out.println("udp ping: "+e);
             // and a PrintWriter as shown below. 
             BufferedReader in = null; 
             PrintWriter out = null; 
+            String command;
 
             // Print out details of this connection 
             System.out.println("Accepted Client Address - " + myClientSocket.getInetAddress().getHostName()); 
@@ -296,9 +345,93 @@ System.out.println("udp ping: "+e);
                         System.out.print("Stopping client thread for client : "); 
                         ServerOn = false;
                     } else {
-                            // Process it 
-                            out.println("user_found"); 
+                        StringTokenizer commandst = new StringTokenizer(clientCommand);
+                        command = commandst.nextToken();
+                        if (command.equalsIgnoreCase("login")){  
+                            StringTokenizer log_in = new StringTokenizer(clientCommand);
+                            log_in.nextToken();
+                            String username = log_in.nextToken();
+                            String password = log_in.nextToken();
+                            long msgid = Long.valueOf(log_in.nextToken());
+                            System.out.println(msgid);
+                            
+                            Message msg = new Message (username, password, msgid);
+                            msg.set_request("login");
+                           
+                            //part where I send message via RMI
+                            msg.set_answer_string("user_found");
+                            //and receive a reply
+                            out.println(msg.get_answer_string()); 
                             out.flush(); 
+                        }
+                        if (command.equalsIgnoreCase("register")){  
+                            StringTokenizer reg_ter = new StringTokenizer(clientCommand);
+                            reg_ter.nextToken();
+                            String username = reg_ter.nextToken();
+                            String password = reg_ter.nextToken();
+                            long msgid = Long.valueOf(reg_ter.nextToken());
+                            System.out.println(msgid);
+                            
+                            Message msg = new Message (username, password, msgid);
+                            msg.set_request("register");
+                           
+                            //part where I send message via RMI
+                            msg.set_answer_string("accepted_new_user");
+                            //and receive a reply
+                            out.println(msg.get_answer_string()); 
+                            out.flush(); 
+                        }
+                        if (command.equalsIgnoreCase("list")){ 
+                            StringTokenizer li_st = new StringTokenizer(clientCommand);
+                            li_st.nextToken();
+                            String condition = li_st.nextToken();
+                            long msgid = Long.valueOf(li_st.nextToken());
+                            System.out.println(msgid);
+                            
+                            Message msg = new Message (msgid);
+                            msg.set_request("list "+ condition);
+                           
+                            //part where I send message via RMI
+                            
+                            //just for tests
+                            String [][] anArray;
+                            anArray = new String [4][3];
+                            anArray [0][0] = "0";
+                            anArray [0][1] = "Smart Bulbs";
+                            anArray [0][2] = "active";
+                            anArray [1][0] = "1";
+                            anArray [1][1] = "Smart Pants";
+                            anArray [1][2] = "old";
+                            anArray [2][0] = "2";
+                            anArray [2][1] = "Test Tubes";
+                            anArray [2][2] = "active";
+                            anArray [3][0] = "3";
+                            anArray [3][1] = "Robot Cookies";
+                            anArray [3][2] = "active";
+                            
+                            msg.set_answer_table(anArray);
+                            msg.set_answer_int(4); // tells how many lines the array has
+                          //and receive a reply
+                            int count = 0;
+                            String std;
+                            while (count < 4){
+                                std = msg.get_answer_table()[count][0] + " " + msg.get_answer_table()[count][1] + " " + msg.get_answer_table()[count][2];
+                                System.out.println(std);
+                                out.println(std);
+                                out.flush(); 
+                                count ++;
+                            }
+                             out.println("end");
+                                out.flush(); 
+                            
+                             
+                            
+                        }
+                        
+                        
+                        
+                            // Process it 
+                            
                             System.out.println("Processed!");
                     }
                 } 
@@ -324,6 +457,15 @@ System.out.println("udp ping: "+e);
             } 
         } 
 
+        
+        /**
+         * Warnig! Testing Area
+         * 
+         */
+        
+        
+        
+        
 
     } 
 }

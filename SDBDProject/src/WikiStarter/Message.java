@@ -28,19 +28,29 @@ public class Message implements Serializable {
     private long message_number;
     private String username;
     private String password;
-    private String last_menu;
+    //private String last_menu;
     private String request;
     private String [][] answer_table;
     private Boolean answer_boolean;
     private String answer_string;
     private int answer_int;
 
-    public Message(String a_username, String a_password, String a_menu){
+    public Message(String a_username, String a_password, long message_nbr){
 
-        message_number = Calendar.getInstance().getTimeInMillis();
+        message_number = message_nbr;
         username = a_username;
         password = a_password;
-        last_menu = a_menu;
+        request = "";
+        answer_table = new String [0][0];
+        answer_boolean = false;
+        answer_string = "";
+        answer_int = 0;
+    }
+    
+    public Message (long message_nbr){
+        message_number = message_nbr;
+        username = "user";
+        password = "password";
         request = "";
         answer_table = new String [0][0];
         answer_boolean = false;
@@ -60,9 +70,9 @@ public class Message implements Serializable {
         return password;
     }
     
-    public String get_last_menu(){
-        return last_menu;
-    }
+//    public String get_last_menu(){
+//        return last_menu;
+//    }
 
     public void set_request (String req){
         request = req;

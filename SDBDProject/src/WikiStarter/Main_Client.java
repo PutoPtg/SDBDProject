@@ -23,21 +23,25 @@ package WikiStarter;
 import java.net.*;
 import java.io.*;
 import java.util.Calendar;
+import java.util.StringTokenizer;
 
 public class Main_Client extends Thread {
 
-    static BufferedReader in = null; 
+    static BufferedReader in = null;
     static PrintWriter out = null;
     static Socket s;
 
-    static String IP1 = "0.0.0.0";
-    static String IP2 = "192.158.56.13";
+    static String IP1 = "192.168.56.11";
+    static String IP2 = "192.168.56.13";
 
     static String main_ip = IP1;
+    static String username;
+    static String password;
+    static boolean loggedin = false;
 
     public static void main(String args[]) {
         connect();
-        menu_splash();
+        terminal_command();
     }
 
     private static void connect() {
@@ -46,7 +50,7 @@ public class Main_Client extends Thread {
         boolean connected = false;
         boolean first_round = true;
 
-        while (connected == false && counter < 4) {
+        while (counter < 4) {
             counter++;
             if (s != null) {
                 try {
@@ -58,221 +62,274 @@ public class Main_Client extends Thread {
 
             s = null;
             try {
-
                 Thread.sleep(2000);
-                s = new Socket(main_ip, 11111);
-                in = new BufferedReader(new InputStreamReader(s.getInputStream())); 
-                out = new PrintWriter(new OutputStreamWriter(s.getOutputStream())); 
-                counter = 0;
+                s = new Socket(main_ip, 6666);
+                in = new BufferedReader(new InputStreamReader(s.getInputStream()));
+                out = new PrintWriter(new OutputStreamWriter(s.getOutputStream()));
+                counter = 7;
                 connected = true;
+                System.out.println("Connected");
             } catch (UnknownHostException e) {
                 System.out.println("Sock:" + e.getMessage());
             } catch (EOFException e) {
                 System.out.println("EOF:" + e.getMessage());
             } catch (IOException e) {
-                System.out.println("IO:" + e.getMessage());
+                System.out.println("IO: IP " + main_ip + " out of reach");
+                if (counter % 2 == 1) {
+                    main_ip = IP2;
+                } else {
+                    main_ip = IP1;
+                }
             } catch (InterruptedException e) {
-                System.out.println("IO:" + e.getMessage());
+                System.out.println("IO2:" + e.getMessage());
             }
         }
 
-        if (!connected && first_round == false) {
-            System.out.println("Erro de connecção");
+        if (connected == false) {
+            System.out.println("Connection Error. Exiting.");
             System.exit(-1);
-        } else {
-            first_round = false;
-            counter = 0;
-            if (main_ip == IP1) {
-                main_ip = IP2;
-            } else {
-                main_ip = IP1;
-            }
-        }
-    }
-
-//    private static Message courier(String username, String password, String request) {
-//
-//        //do {
-//            try {
-//                           
-//                
-//                
-//         
-//    
-//            } catch (UnknownHostException e) {
-//                System.out.println("Sock:" + e.getMessage());
-//            } catch (EOFException e) {
-//                System.out.println("EOF:" + e.getMessage());
-//            } catch (IOException | NullPointerException e) {
-//                System.out.println("IO ligaçao com o caralho:" + e.getMessage());
-//                //connect();
-//            } catch (ClassNotFoundException e) {
-//                System.out.println("ClassNotFound:" + e.getMessage());
-//            }
-//            
-//            finally {
-//                // Clean up 
-//                try {
-//                    in.close();
-//                    out.close();
-//                    s.close();
-//                } catch (IOException ioe) {
-//                    ioe.printStackTrace();
-//                }
-//            }
-//        //} while (msg.get_answer_boolean() == false); 
-//                        return msg;
-//    }
-
-    /* Menu de arranque do sistema
-     *  by Manuel
-     */
-    private static void menu_splash() {
-
-        int o;
-        Get_Option op = new Get_Option(3);
-
-        System.out.println("Wiki Starter");
-        System.out.println("");
-        System.out.println("1 - Login");
-        System.out.println("2 - Register");
-        System.out.println("0 - Quit");
-
-        o = op.get_option();
-
-        switch (o) {
-            case 1:
-                menu_login();
-            case 2:
-                menu_register();
-            case 0:
-                menu_exit();
         }
 
-        //return o;
     }
 
-    private static void menu_login() {
+    private static void terminal_command() {
 
-        String username;
-        String password;
-        String request;
-        String reply;
-        String answer;
-        String msgID;
-        
         Get_String str = new Get_String();
+        String s;
 
-        System.out.println("Login");
-        System.out.print("Username: ");
-        username = str.get_string("Username");
-        System.out.print("Password: ");
-        password = str.get_string("Password");
-        System.out.println("");
+        boolean treated;
 
-        long message_number = Calendar.getInstance().getTimeInMillis();
-        msgID = Long.toString(message_number);
-        
-        
-        try {
-            
-            out.println(msgID);
-            out.println(username);
-            out.println(password);
-            out.println("login");            
-            out.flush();
-            
-            reply = in.readLine();
-            
-            if ("user_found".equals(reply)) {
-            System.out.println("Accepted");
-            menu_welcome(username);
-        } else {
-            System.out.println("User Not Found");
+        System.out.println("Wellcome to WikiStarter!");
+        System.out.println("Need Help? Type 'Help'");
+
+        while (true) {
+            treated = false;
+            s = str.get_string("Command. Type help for a list of commands");
+            if (s.equalsIgnoreCase("help")) {
+                System.out.println("login <username> <password>");
+                System.out.println("register <username> <password>");
+            }
+            if (s.contains("login")) {
+                if (loggedin == false) {
+                    command_login(s);
+                } else {
+                    System.out.println("Already logged in as " + username);
+                    System.out.println("Please logout first.");
+                }
+                treated = true;
+            }
+            if (s.contains("register")) {
+                if (loggedin == false) {
+                    command_register(s);
+                } else {
+                    System.out.println("Already logged in as " + username);
+                    System.out.println("Please logout before register new user.");
+                }
+                treated = true;
+            }
+            if (s.equalsIgnoreCase("logout")) {
+                if (loggedin == false) {
+                    System.out.println("Already logged out.");
+                } else {
+                    System.out.println("See you soon " + username + "!");
+                    username = null;
+                    password = null;
+                    loggedin = false;
+                }
+                treated = true;
+            }
+            if (s.contains("list")) {
+                if (loggedin == false) {
+                    System.out.println("Please login first.");
+                } else {
+                    command_list(s);
+                }
+                treated = true;
+            }
+
+            //glued to last if
+            if (s.equalsIgnoreCase("quit")) {
+                exit(s);
+                treated = true;
+            }
+            //last if
+            if (treated == false) {
+                System.out.println("Unknown Command");
+                treated = true;
+            }
+
+        }//end of while
+    }
+
+    /**
+     *
+     * Commands Methods
+     *
+     */
+    /**
+     * Performs Login into database
+     *
+     * @param s
+     */
+    private static void command_login(String s) {
+
+        int count = 0;
+        String reply;
+        String msgID;
+        String msg;
+        long message_number;
+
+        //counts the number of arguments
+        StringTokenizer st = new StringTokenizer(s);
+        while (st.hasMoreTokens()) {
+            st.nextToken();
+            count++;
         }
-         
-    
+        if (count == 3) {
+            message_number = Calendar.getInstance().getTimeInMillis();
+            msgID = Long.toString(message_number);
+            try {
+                msg = s + " " + msgID;
+
+                out.println(msg);
+                out.flush();
+
+                reply = in.readLine();
+
+                if ("user_found".equals(reply)) {
+                    System.out.println("Accepted");
+                    loggedin = true;
+                    StringTokenizer st2 = new StringTokenizer(s);
+                    st2.nextToken();
+                    username = st2.nextToken();
+                    password = st2.nextToken();
+                } else {
+                    if ("wrong_password".equals(reply)) {
+                        System.out.println("Wrong Password!");
+                    } else {
+                        if ("unknown_user".equals(reply)) {
+                            System.out.println("User Not Found!");
+                        }
+                    }
+                }
             } catch (UnknownHostException e) {
                 System.out.println("Sock:" + e.getMessage());
             } catch (EOFException e) {
                 System.out.println("EOF:" + e.getMessage());
             } catch (IOException | NullPointerException e) {
-                System.out.println("IO ligaçao com o caralho:" + e.getMessage());
-                //connect();
-            } //catch (ClassNotFoundException e) {
-//                System.out.println("ClassNotFound:" + e.getMessage());
-//            }
-        
-        
-        
-
-        
-
-        
-    }
-
-    private static void menu_register() {
-        
-        String username;
-        String password;
-        Get_String str = new Get_String();
-        boolean ok = false;
-        
-        while(ok == false){
-        System.out.println("Login");
-        System.out.print("Username: ");
-        username = str.get_string("Username");
-        System.out.print("Password: ");
-        password = str.get_string("Password");
-        System.out.println("");
-
-        Message msg = new Message(username, password, "login");
-        msg.set_request("register_user");
-
-        //msg = courier(msg);
-
-        if (msg.get_answer_string() == "user_found") {
-            System.out.println("Username already in use, choose another.");    
-        } else {if(msg.get_answer_string() == "user_created"){
-            System.out.println("New Valid User!");  
-            ok = true;
-        }
-            
-        }       
-        }
-        menu_login();
-
-    }
-
-    private static void menu_welcome(String username) {
-
-        int o;
-        boolean active;
-        Get_Option op = new Get_Option(2);
-
-        System.out.println("Wiki Starter");
-        System.out.println("Welcome " + username);
-        System.out.println("");
-        System.out.println("1 - List Open Projects");
-        System.out.println("2 - List Old Projects");
-        System.out.println("3 - Personal Info");
-        System.out.println("0 - Quit");
-
-        o = op.get_option();
-
-        switch (o) {
-            case 1:
-                menu_projects(active = true);
-            case 2:
-                menu_projects(active = false);
-            case 3:
-                menu_userInfo();
-            case 0:
-                menu_exit();
+                System.out.println("IO:" + e.getMessage());
+                connect();
+                command_login(s);
+            }
+        } else {
+            System.out.println("Invalid Command: too few arguments.");
         }
     }
 
-    private static void menu_exit() {
+    private static void command_register(String s) {
+
+        int count = 0;
+        String reply;
+        String msgID;
+        String msg;
+        long message_number;
+
+        //counts the number of arguments
+        StringTokenizer st = new StringTokenizer(s);
+        while (st.hasMoreTokens()) {
+            st.nextToken();
+            count++;
+        }
+        if (count == 3) {
+            message_number = Calendar.getInstance().getTimeInMillis();
+            msgID = Long.toString(message_number);
+            try {
+                msg = s + " " + msgID;
+
+                out.println(msg);
+                out.flush();
+
+                reply = in.readLine();
+
+                if ("accepted_new_user".equals(reply)) {
+                    System.out.println("User Registered Successfully!");
+                    System.out.println("Please Login.");
+                } else if ("user_found".equals(reply)) {
+                    System.out.println("Unable to Register. User Already Exists.");
+                }
+            } catch (UnknownHostException e) {
+                System.out.println("Sock:" + e.getMessage());
+            } catch (EOFException e) {
+                System.out.println("EOF:" + e.getMessage());
+            } catch (IOException | NullPointerException e) {
+                System.out.println("IO:" + e.getMessage());
+                connect();
+                command_register(s);
+            }
+        } else {
+            System.out.println("Invalid Command: too few arguments.");
+        }
+    }
+
+    private static void command_list(String s) {
+
+        int count = 0;
+        String reply = "List:";
+        String msgID;
+        String msg;
+        long message_number;
+
+        //counts the number of arguments
+        StringTokenizer st = new StringTokenizer(s);
+        while (st.hasMoreTokens()) {
+            st.nextToken();
+            count++;
+        }
+        if (count == 2) {
+            message_number = Calendar.getInstance().getTimeInMillis();
+            msgID = Long.toString(message_number);
+
+            StringTokenizer st2 = new StringTokenizer(s);
+            st2.nextToken();
+            String temp = st2.nextToken();
+            if (temp.equals("all") || temp.equals("active") || temp.equals("old") || temp.equals("mine") || temp.equals("bidded")) {
+                try {
+                    msg = s + " " + msgID;
+
+                    out.println(msg);
+                    out.flush();
+
+                    do{                       
+                    System.out.println(reply);
+                    reply = in.readLine();
+                    
+                    }while (!reply.contains("end"));
+                    
+                } catch (UnknownHostException e) {
+                    System.out.println("Sock:" + e.getMessage());
+                } catch (EOFException e) {
+                    System.out.println("EOF:" + e.getMessage());
+                } catch (IOException | NullPointerException e) {
+                    System.out.println("IO:" + e.getMessage());
+                    connect();
+                    command_list(s);
+                }
+            }else {
+                System.out.println("Invalid Command: argument unknown.");
+            }
+        } else {
+            System.out.println("Invalid Command: too few arguments.");
+        }
+    }
+
+    private static void exit(String s) {
+
+        try {
+            out.println(s);
+            out.flush();
+        } catch (Exception e) {
+            System.out.println("Error Trying to Exit.");
+        }
 
         System.exit(0);
     }
