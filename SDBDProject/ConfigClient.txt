@@ -1,0 +1,6 @@
+192.168.56.13
+192.168.56.11
+6666
+
+Escolher os ips de onde correm os servidores, a ordem não impora.
+Não acrecentar espaços às linhas.

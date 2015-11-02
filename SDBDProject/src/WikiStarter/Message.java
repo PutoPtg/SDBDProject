@@ -78,6 +78,10 @@ public class Message implements Serializable {
         request = req;
     }
     
+    public void set_username (String req){
+        username = req;
+    }
+    
     public String get_request() {
         return request;
     }
