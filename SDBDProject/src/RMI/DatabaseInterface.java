@@ -39,6 +39,9 @@ public interface DatabaseInterface extends java.rmi.Remote {
      public String adicionarRecompensaProj(int id_proj, String nome, String desc, float valor) throws RemoteException;
 //auxiliar
     public boolean log_check(long id) throws RemoteException;
+    
+    
+    //teste
 
     
 
