@@ -33,6 +33,10 @@ public class DatabaseImplementation extends UnicastRemoteObject implements Datab
     public static long[] done_work;
     private static int count;
 
+    /**
+     *
+     * @throws RemoteException
+     */
     public DatabaseImplementation() throws RemoteException {
 
         super();	// sets up networking
@@ -49,12 +53,13 @@ public class DatabaseImplementation extends UnicastRemoteObject implements Datab
             done_work[i] = 0;
         }
         try {
-            FileInputStream r = new FileInputStream("ficheiros/users");
+            
+        FileInputStream r = new FileInputStream("ficheiros/users.txt");
         ObjectInputStream obj_r = new ObjectInputStream(r);
         listaUtilizadores = (ArrayList) obj_r.readObject();
         obj_r.close();
 		
-        r = new FileInputStream("ficheiros/ideias");
+        r = new FileInputStream("ficheiros/ideias.txt");
         obj_r = new ObjectInputStream(r);
         //começar atomic no ultimo definido para ids serem sempre diferentes
         listaProjetos = (ArrayList) obj_r.readObject();
@@ -68,6 +73,25 @@ public class DatabaseImplementation extends UnicastRemoteObject implements Datab
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(DatabaseImplementation.class.getName()).log(Level.SEVERE, null, ex);
         }
+       
+        /**
+         * Test Area
+         * 
+         */
+//        try{
+//            
+//        }catch (Exception e){
+//            //Create user
+//            
+//            //Create projects
+//            criaProjeto("Macaco", "Teste", "Teste", Calendar inicio, Calendar fim, ) throws RemoteException;
+//   
+//            //Create rewards
+//            
+//            
+//        }
+        
+        
         
     }
 
@@ -125,8 +149,7 @@ public class DatabaseImplementation extends UnicastRemoteObject implements Datab
         try {
             guardar();
 	} catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            System.out.println("erro a guardar");
 	}
 
         return "accepted_new_user";
@@ -175,6 +198,7 @@ public class DatabaseImplementation extends UnicastRemoteObject implements Datab
      * @author Alexandra
      * @param username
      * @param nome
+     * @param description
      * @param inicio
      * @param fim
      * @param valor_objetivo
@@ -206,7 +230,13 @@ public class DatabaseImplementation extends UnicastRemoteObject implements Datab
      * @param valor
      */
     synchronized public String adicionarRecompensaProj(int id_proj, String nome, String desc, float valor) {
+        //failsafe code:
         Project proj = procuraProjetoId(id_proj);
+        
+        if(proj == null){
+            return "Project_not_found";
+        }  
+        
         int id = proj.listaRecompProj.size();
         Recompensa rec = new Recompensa(nome,id,proj, valor, false);
         proj.listaRecompProj.add(rec);
@@ -217,7 +247,7 @@ public class DatabaseImplementation extends UnicastRemoteObject implements Datab
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        return "added";
+        return proj.nome_proj;
     }
 
     /**

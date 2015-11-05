@@ -1,0 +1,20 @@
+# Tells if the Server is the primary or not
+# But it is not used right now
+Primary
+# IP from the own Server
+192.168.56.11
+# Port from the own Server
+6666
+# IP from the Twin Server
+192.168.56.13
+# Port From the Twin Server
+6666
+# not used, do not delete line
+-----
+# RMI Port
+7000
+# Name of the Twin Server for udp search
+Tugatatil
+# UDP Port
+9999
+

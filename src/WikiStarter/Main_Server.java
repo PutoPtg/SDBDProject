@@ -40,6 +40,9 @@ public class Main_Server {
     boolean ServerOn = true;
 
     DatabaseInterface netConn = null; //RMI
+    
+    //Config file Name
+    private static String fileName = "ficheiros/Config1.txt";
 
     public Main_Server() {
 
@@ -91,9 +94,6 @@ public class Main_Server {
 
     private static void read_config_file() {
 
-        // The name of the file to open.
-        String fileName = "Config1.txt";
-
         // This will reference one line at a time
         String line = null;
 
@@ -105,31 +105,58 @@ public class Main_Server {
             BufferedReader bufferedReader = new BufferedReader(fileReader);
 
             line = bufferedReader.readLine();
+            while(line.contains("#")){
+            line = bufferedReader.readLine();
+        }
             if ("Primary".equals(line)) {
                 primary = true;
             }
             line = bufferedReader.readLine();
+            while(line.contains("#")){
+            line = bufferedReader.readLine();
+        }
             ownIP = line;
             System.out.println("My IP: " + ownIP);
             line = bufferedReader.readLine();
+            while(line.contains("#")){
+            line = bufferedReader.readLine();
+        }
             ownPORT = Integer.parseInt(line);
             System.out.println("My PORT: " + ownPORT);
             line = bufferedReader.readLine();
+            while(line.contains("#")){
+            line = bufferedReader.readLine();
+        }
             twinIP = line;
             System.out.println("My Twin IP: " + twinIP);
             line = bufferedReader.readLine();
+            while(line.contains("#")){
+            line = bufferedReader.readLine();
+        }
             twinPORT = Integer.parseInt(line);
             System.out.println("My Twin PORT: " + twinPORT);
             line = bufferedReader.readLine();
+            while(line.contains("#")){
+            line = bufferedReader.readLine();
+        }
             databaseIP = line;
            //not used
             line = bufferedReader.readLine();
+            while(line.contains("#")){
+            line = bufferedReader.readLine();
+        }
             databasePORT = Integer.parseInt(line);
             System.out.println("My RMI SocketT: " + databasePORT);
             line = bufferedReader.readLine();
+            while(line.contains("#")){
+            line = bufferedReader.readLine();
+        }
             twinNAME = line;
             System.out.println("My twin's name: " + twinNAME);
             line = bufferedReader.readLine();
+            while(line.contains("#")){
+            line = bufferedReader.readLine();
+        }
             udpPORT = Integer.parseInt(line);
             System.out.println("Conventioned UDP Port: " + udpPORT);
 
@@ -520,8 +547,7 @@ public class Main_Server {
                                     out.flush();
                                     count++;
                                 }
-                                out.println("end");
-                                out.flush();
+                                
 
                                array = netConn.listaRecompensas(cond);
                                 
@@ -532,6 +558,9 @@ public class Main_Server {
                                     out.flush();
                                     count++;
                                 }
+                                
+                                out.println("end");
+                                out.flush();
                                 
                         }
                         //Wallet Check Done
@@ -571,7 +600,7 @@ public class Main_Server {
                             }
                         }
 
-                        if (command.equalsIgnoreCase("add-rewards")) {
+                        if (command.equalsIgnoreCase("add-reward")) {
                             StringTokenizer cre_pro = new StringTokenizer(clientCommand);
                             cre_pro.nextToken();
                             int projid = Integer.valueOf(cre_pro.nextToken());
@@ -586,7 +615,11 @@ public class Main_Server {
                             System.out.println(msgid);
 
                             if (netConn.log_check(msgid) == false) {
-                                out.println(netConn.adicionarRecompensaProj(projid, rwdname, description, amount));
+                                System.out.println("aqui! pedido");
+                                String reply;
+                                reply = netConn.adicionarRecompensaProj(projid, rwdname, description, amount);
+                                System.out.println(reply);
+                                out.println(reply);
                                 out.flush();
                             } else {
                                 out.println("already_done");

@@ -45,7 +45,7 @@ static int soc;
     public static void main(String args[]) {
         
         // The name of the file to open.
-        String fileName = "ConfigClient.txt";
+        String fileName = "ficheiros/ConfigClient.txt";
 
         // This will reference one line at a time
         String line = null;
@@ -68,12 +68,12 @@ static int soc;
             main_ip=IP1;
             
         } catch (FileNotFoundException ex) {
-           // System.out.println("Unable to open file '"+ fileName + "'");
+            System.out.println("Unable to open file '"+ fileName + "'");
                     
                     
             System.exit(-1);
         } catch (IOException ex) {
-            //System.out.println( "Error reading file '"+ fileName + "'");
+            System.out.println( "Error reading file '"+ fileName + "'");
                    
                     
             System.exit(-1);
@@ -101,7 +101,7 @@ static int soc;
                 try {
                     s.close();
                 } catch (IOException e) {
-                  //  System.out.println("Socket Closing error: " + e.getMessage());
+                    System.out.println("Socket Closing error: " + e.getMessage());
                 }
             }
 
@@ -113,25 +113,25 @@ static int soc;
                 out = new PrintWriter(new OutputStreamWriter(s.getOutputStream()));
                 counter = 7;
                 connected = true;
-               // System.out.println("Connected");
+                System.out.println("Connected");
             } catch (UnknownHostException e) {
-               // System.out.println("Sock:" + e.getMessage());
+                System.out.println("Sock:" + e.getMessage());
             } catch (EOFException e) {
-              //  System.out.println("EOF:" + e.getMessage());
+                System.out.println("EOF:" + e.getMessage());
             } catch (IOException e) {
-              //  System.out.println("IO: IP " + main_ip + " out of reach");
+                System.out.println("IO: IP " + main_ip + " out of reach");
                 if (counter % 2 == 1) {
                     main_ip = IP2;
                 } else {
                     main_ip = IP1;
                 }
             } catch (InterruptedException e) {
-                //System.out.println("IO2:" + e.getMessage());
+                System.out.println("IO2:" + e.getMessage());
             }
         }
 
         if (connected == false) {
-            //System.out.println("Connection Error. Exiting.");
+            System.out.println("Connection Error. Exiting.");
             System.exit(-1);
         }
 
@@ -755,20 +755,28 @@ static int soc;
             System.out.print("Ammount: ");
             ammount = str.get_string("Ammount");
 
-            while (failsafe == true) {
+            //while (failsafe == true) {
                 try {
                     msg = s + " " + description + "." + rname + " " + ammount + " " + username + " " + msgID;
 
                     out.println(msg);
+                    System.out.println("aqui! sent");
                     out.flush();
 
                     reply = in.readLine();
+                    System.out.println("aqui! repy: "+reply);
                     if ("already_done".equals(reply)) {
-                        failsafe = false;
+                       // failsafe = false;
+           
                         return;
                     } else {
+                        if("Project_not_found".equalsIgnoreCase(reply)){
+                            System.out.println("Project Not Found!");
+                            //failsafe = false;
+                            return;
+                        }
                         System.out.println("Project " + reply + " has a new reward!");
-                        failsafe = false;
+                       // failsafe = false;
                     }
                 } catch (UnknownHostException e) {
                    // System.out.println("Sock:" + e.getMessage());
@@ -777,7 +785,7 @@ static int soc;
                 } catch (IOException | NullPointerException e) {
                    // System.out.println("IO:" + e.getMessage());
                     connect();
-                }
+          //      }
             }
         } else {
             System.out.println("Invalid Command: too few/many arguments.");
