@@ -2,11 +2,11 @@
 # But it is not used right now
 Primary
 # IP from the own Server
-192.168.1.71
+192.168.56.11
 # Port from the own Server
 6666
 # IP from the Twin Server
-192.168.56.11
+192.168.56.13
 # Port From the Twin Server
 6666
 # not used, do not delete line
@@ -14,7 +14,7 @@ Primary
 # RMI Port
 7000
 # Name of the Twin Server for udp search
-Pulga
+Tugatatil
 # UDP Port
 9999
 

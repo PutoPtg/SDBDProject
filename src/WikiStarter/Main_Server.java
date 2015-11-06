@@ -401,19 +401,20 @@ public class Main_Server {
                         //create project done
                         if (command.equalsIgnoreCase("create-project")) {
                             StringTokenizer cre_pro = new StringTokenizer(clientCommand);
-                            cre_pro.nextToken();
-                            String projname = cre_pro.nextToken();
+                            cre_pro.nextToken(".");
+                            String projname = cre_pro.nextToken(".");
                             System.out.println(projname);
                             String description = cre_pro.nextToken(".");
-                            System.out.println(description);
-                            String deadline = cre_pro.nextToken(" ");
                             
-                            float amount = Float.valueOf(cre_pro.nextToken());
-                            String username = cre_pro.nextToken();
-                            long msgid = Long.valueOf(cre_pro.nextToken());
+                            System.out.println(description);
+                            String deadline = cre_pro.nextToken(".");
+                            
+                            float amount = Float.valueOf(cre_pro.nextToken("."));
+                            String username = cre_pro.nextToken(".");
+                            long msgid = Long.valueOf(cre_pro.nextToken("."));
                             System.out.println(msgid);
 
-                            DateFormat df = new SimpleDateFormat(".HHmmddMMyyyy");
+                            DateFormat df = new SimpleDateFormat("HHmmddMMyyyy");
                             Calendar caldead = Calendar.getInstance();
                             caldead.setTime(df.parse(deadline));
                             System.out.println(caldead);
@@ -538,6 +539,7 @@ public class Main_Server {
                             
                             String array[] = null; 
                             array = netConn.verProjeto(cond);
+                            if(!"unknown".equalsIgnoreCase(array[0])){
                                 int count = 0;
                                 String std;
                                 while (count < 6) { //the description has a fixed number of camps.
@@ -561,7 +563,11 @@ public class Main_Server {
                                 
                                 out.println("end");
                                 out.flush();
-                                
+                            }     else{
+                                out.println("Project Not Found");
+                                out.println("end");
+                                out.flush();
+                            }  
                         }
                         //Wallet Check Done
                         if (command.equalsIgnoreCase("wallet")) {

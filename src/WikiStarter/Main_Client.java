@@ -674,7 +674,7 @@ static int soc;
             msgID = Long.toString(message_number);
 
             StringTokenizer st2 = new StringTokenizer(s);
-            st2.nextToken();
+            String command = st2.nextToken();
             pname = st2.nextToken();
             System.out.println("Project " + pname + ":");
             System.out.print("Description: ");
@@ -688,7 +688,7 @@ static int soc;
 
             while (failsafe == true) {
                 try {
-                    msg = s + " " + description + "." + deadline + " " + ammount + " " + username + " " + msgID;
+                    msg = command + "." + pname + "." + description + "." + deadline + "." + ammount + "." + username + "." + msgID;
 
                     out.println(msg);
                     out.flush();

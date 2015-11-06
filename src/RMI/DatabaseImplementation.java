@@ -52,25 +52,12 @@ public class DatabaseImplementation extends UnicastRemoteObject implements Datab
         for (i = 0; i < 10; i++) {
             done_work[i] = 0;
         }
+        Object temp;
         try {
             
-        FileInputStream r = new FileInputStream("ficheiros/users.txt");
-        ObjectInputStream obj_r = new ObjectInputStream(r);
-        listaUtilizadores = (ArrayList) obj_r.readObject();
-        obj_r.close();
-		
-        r = new FileInputStream("ficheiros/ideias.txt");
-        obj_r = new ObjectInputStream(r);
-        //começar atomic no ultimo definido para ids serem sempre diferentes
-        listaProjetos = (ArrayList) obj_r.readObject();
-        contadorIdRecomp.set((Integer) obj_r.readObject());
-        contadorIdProj.set((Integer) obj_r.readObject());
-        contadorIdUsers.set((Integer) obj_r.readObject());
-       obj_r.close();
+        carregar();
        
-        } catch (IOException ex) {
-            Logger.getLogger(DatabaseImplementation.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
+        } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(DatabaseImplementation.class.getName()).log(Level.SEVERE, null, ex);
         }
        
@@ -612,15 +599,16 @@ public class DatabaseImplementation extends UnicastRemoteObject implements Datab
         FileInputStream r = new FileInputStream("ficheiros/users.txt");
         ObjectInputStream obj_r = new ObjectInputStream(r);
         listaUtilizadores = (ArrayList) obj_r.readObject();
+        contadorIdRecomp.set((Integer) obj_r.readObject());
+        contadorIdProj.set((Integer) obj_r.readObject());
+        contadorIdUsers.set((Integer) obj_r.readObject());
         obj_r.close();
 		
         r = new FileInputStream("ficheiros/ideias.txt");
         obj_r = new ObjectInputStream(r);
         //começar atomic no ultimo definido para ids serem sempre diferentes
         listaProjetos = (ArrayList) obj_r.readObject();
-        contadorIdRecomp.set((Integer) obj_r.readObject());
-        contadorIdProj.set((Integer) obj_r.readObject());
-        contadorIdUsers.set((Integer) obj_r.readObject());
+        
        
        
         obj_r.close();
