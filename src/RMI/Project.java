@@ -25,6 +25,7 @@ public class Project implements Serializable{
     int id;
     Calendar inicio,fim;
     User admin;
+    boolean deleted;
     public static ArrayList <Doacoes> listaDoacoes= new ArrayList <Doacoes>(); //list de qt e o id do user que doou
     public static ArrayList <Recompensa> listaRecompProj= new ArrayList <Recompensa>(); //lista de recompensas deste projeto
     ArrayList <Mensagem> mensagens = new ArrayList <Mensagem>();
@@ -39,7 +40,7 @@ public class Project implements Serializable{
         this.fim=fim;
         this.saldo_objectivo=saldo_objectivo;
         this.saldo=saldo;
-        
+        this.deleted = false;
     }
     public String [] rosto (){
         

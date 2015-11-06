@@ -194,9 +194,9 @@ public class DatabaseImplementation extends UnicastRemoteObject implements Datab
     @Override
     synchronized public String criaProjeto(String username, String nome, String description, Calendar inicio, Calendar fim, float valor_objetivo) {
 
-        //int id = contadorIdProj.getAndIncrement();
-        int id = 0;
-        id = listaProjetos.size()+1;
+        int id = contadorIdProj.getAndIncrement();
+        //int id = 0;
+        //id = listaProjetos.size();
         User u = findUser(username);
         Project proj = new Project(u, nome, description, id, inicio, fim, valor_objetivo, 0);
         u.listaProjAdmin.add(proj);
@@ -277,7 +277,7 @@ public class DatabaseImplementation extends UnicastRemoteObject implements Datab
      * @param username
      * @return
      */
-    public String[] projetosAdmin(String username) {
+   public String[] projetosAdmin(String username) {
         DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
         User u=findUser(username);
         
@@ -487,6 +487,7 @@ public class DatabaseImplementation extends UnicastRemoteObject implements Datab
             return ("error");
         }
         devolveTudo(proj);
+       // proj.deleted = true;
 	user.listaProjAdmin.remove(proj.id); 
 	listaProjetos.remove(proj);
         try {
@@ -684,10 +685,15 @@ public class DatabaseImplementation extends UnicastRemoteObject implements Datab
     synchronized public String [] verProjeto(int id_proj) {
         String ne [] = new String [1];
         ne [0] = "unknown";
+        Project temp;
         
         if(procuraProjetoId(id_proj)==null){
             return ne;
-        }else return listaProjetos.get(id_proj).rosto();
+        }else {
+            temp = procuraProjetoId(id_proj);
+            return temp.rosto();
+        }
+                
     }
     
 
