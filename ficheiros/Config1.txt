@@ -2,7 +2,7 @@
 # But it is not used right now
 Primary
 # IP from the own Server
-192.168.1.71
+127.0.0.1
 # Port from the own Server
 6666
 # IP from the Twin Server

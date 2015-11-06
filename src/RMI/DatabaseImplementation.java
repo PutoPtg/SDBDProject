@@ -194,18 +194,22 @@ public class DatabaseImplementation extends UnicastRemoteObject implements Datab
     @Override
     synchronized public String criaProjeto(String username, String nome, String description, Calendar inicio, Calendar fim, float valor_objetivo) {
 
-        int id = contadorIdProj.getAndIncrement();
+        //int id = contadorIdProj.getAndIncrement();
+        int id = 0;
+        id = listaProjetos.size()+1;
         User u = findUser(username);
         Project proj = new Project(u, nome, description, id, inicio, fim, valor_objetivo, 0);
         u.listaProjAdmin.add(proj);
         listaProjetos.add(proj);
+        
         try {
             guardar();
 	} catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
 	}
-        return Integer.toString(id);
+        return (Integer.toString(id) + " " + listaProjetos.indexOf(proj));
+
     }
 
     /**

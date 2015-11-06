@@ -688,7 +688,7 @@ static int soc;
 
             while (failsafe == true) {
                 try {
-                    msg = command + "." + pname + "." + description + "." + deadline + "." + ammount + "." + username + "." + msgID;
+                    msg = command + " " + pname + "." + description + "." + deadline + "." + ammount + "." + username + "." + msgID;
 
                     out.println(msg);
                     out.flush();

@@ -366,6 +366,7 @@ public class Main_Server {
                     } else {
                         StringTokenizer commandst = new StringTokenizer(clientCommand);
                         command = commandst.nextToken();
+                        
                         //login
                         if (command.equalsIgnoreCase("login")) {
                             StringTokenizer log_in = new StringTokenizer(clientCommand);
@@ -401,8 +402,9 @@ public class Main_Server {
                         //create project done
                         if (command.equalsIgnoreCase("create-project")) {
                             StringTokenizer cre_pro = new StringTokenizer(clientCommand);
-                            cre_pro.nextToken(".");
+                            cre_pro.nextToken();
                             String projname = cre_pro.nextToken(".");
+                            projname = projname.substring(1);
                             System.out.println(projname);
                             String description = cre_pro.nextToken(".");
                             
