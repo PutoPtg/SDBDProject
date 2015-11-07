@@ -10,6 +10,8 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.*;
+import static java.lang.System.exit;
+import static java.lang.Thread.sleep;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
@@ -44,17 +46,47 @@ public class Main_Server {
     //Config file Name
     private static String fileName = "ficheiros/Config1.txt";
 
-    public Main_Server() {
+   
+    synchronized private void rmiConnect(){
+        int count = 0;
 
+
+        while (count < 3){
+            count ++;
         //RMI
         try {
             netConn = (DatabaseInterface) LocateRegistry.getRegistry(databasePORT).lookup(DatabaseInterface.LOOKUPNAME);
+            return;
         } catch (RemoteException ex) {
-            Logger.getLogger(Main_Server.class.getName()).log(Level.SEVERE, null, ex);
+                try {
+                    //Logger.getLogger(Main_Server.class.getName()).log(Level.SEVERE, null, ex);
+                    sleep(3000);
+                } catch (InterruptedException ex1) {
+                    Logger.getLogger(Main_Server.class.getName()).log(Level.SEVERE, null, ex1);
+                }
+          
         } catch (NotBoundException ex) {
-            Logger.getLogger(Main_Server.class.getName()).log(Level.SEVERE, null, ex);
+            //Logger.getLogger(Main_Server.class.getName()).log(Level.SEVERE, null, ex);
+            try {
+                    //Logger.getLogger(Main_Server.class.getName()).log(Level.SEVERE, null, ex);
+                    sleep(3000);
+                } catch (InterruptedException ex1) {
+                    Logger.getLogger(Main_Server.class.getName()).log(Level.SEVERE, null, ex1);
+                }
         }
+        
+        }
+        System.out.println("RMI Unreachable");
+            exit (-1);
+    }
+    
+    
+    
+    
+    public Main_Server() {
 
+        // RMI
+        rmiConnect();
         //UDP
         UDP_Ping_Pong pong = new UDP_Ping_Pong();
         pong.start();
