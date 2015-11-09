@@ -22,8 +22,7 @@ public class DatabaseServer {
 
 			System.out.println("DatabaseServer starting...");
 
-			// Publish it in the RMI registry.
-			// Of course you have to have rmiregistry or equivalent running!
+                        System.setProperty( "java.rmi.server.hostname", "192.168.2.1" ) ;
                         Registry r = LocateRegistry.createRegistry(7000);
 			r.rebind(DatabaseInterface.LOOKUPNAME, im);
 

@@ -55,7 +55,8 @@ public class Main_Server {
             count ++;
         //RMI
         try {
-            netConn = (DatabaseInterface) LocateRegistry.getRegistry(databasePORT).lookup(DatabaseInterface.LOOKUPNAME);
+            netConn = (DatabaseInterface) LocateRegistry.getRegistry("192.168.2.1", databasePORT).lookup(DatabaseInterface.LOOKUPNAME);
+      
             return;
         } catch (RemoteException ex) {
                 try {
@@ -84,9 +85,9 @@ public class Main_Server {
     
     
     public Main_Server() {
-
-        // RMI
-        rmiConnect();
+        
+            // RMI
+            rmiConnect();
         //UDP
         UDP_Ping_Pong pong = new UDP_Ping_Pong();
         pong.start();
@@ -257,12 +258,14 @@ public class Main_Server {
      */
     private static void check_twin_status() {
 
+        long message_number = Calendar.getInstance().getTimeInMillis();
+        String msgID = Long.toString(message_number);
         try {
             Socket s = new Socket(twinIP, twinPORT);
             BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
             PrintWriter out = new PrintWriter(new OutputStreamWriter(s.getOutputStream()));
 
-            out.println("login Twin_Fake TwinServer Checking");
+            out.println("login Twin_Fake TwinServer " + msgID);
             out.flush();
 
             String reply = in.readLine();
