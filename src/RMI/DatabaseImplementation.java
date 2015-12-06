@@ -486,9 +486,12 @@ public class DatabaseImplementation extends UnicastRemoteObject implements Datab
         if (proj == null){
             return ("error");
         }
+        if(proj.saldo_objectivo>0){
         devolveTudo(proj);
+        }
        // proj.deleted = true;
-	user.listaProjAdmin.remove(proj.id); 
+        user.listaProjAdmin.remove(proj);
+	//user.listaProjAdmin.remove(proj.id); 
 	listaProjetos.remove(proj);
         try {
             guardar();

@@ -278,7 +278,8 @@ public class Main_Server {
                 System.out.println("Becoming Secondary Server.");
 
             }
-
+            out.println("quit");
+            out.flush();
             in.close();
             out.close();
             s.close();

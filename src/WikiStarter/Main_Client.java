@@ -159,14 +159,18 @@ static int soc;
             if (s.equalsIgnoreCase("help")) {
                 System.out.println("login <username> <password>");
                 System.out.println("register <username> <password>");
-                System.out.println("list <option> - lists projecs by flag");
-                System.out.println("list all      - lists all projects");
-                System.out.println("list old      - lists closed projects");
-                System.out.println("list active   - lists active projects");
-                System.out.println("list mine     - lists user started projects");
-                System.out.println("list bidded   - lists user bidded projects");
-                System.out.println("open <project_id> - shows project description");
-                System.out.println("wallet        - show user's ammount of credits");
+                System.out.println("logout                             - terminates session");
+                System.out.println("list <option>                      - lists projecs by flag");
+                System.out.println("list all                           - lists all projects");
+                System.out.println("list old                           - lists closed projects");
+                System.out.println("list active                        - lists active projects");
+                System.out.println("list mine                          - lists user started projects");
+                System.out.println("delete-project <prj_id>            - deletes a project");
+                System.out.println("create-project <prj_name>          - creates a new project");             
+                System.out.println("open <prj_id>                      - shows project description");
+                System.out.println("add-reward <prj_id>                - creates a reward for a project");
+                System.out.println("delete-reward <prj_id>             - deletes a reward for a project");
+                System.out.println("wallet                             - show user's ammount of credits");
                 treated = true;
             }
             if (s.contains("login")) {

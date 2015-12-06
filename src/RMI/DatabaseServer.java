@@ -22,7 +22,7 @@ public class DatabaseServer {
 
 			System.out.println("DatabaseServer starting...");
 
-                        System.setProperty( "java.rmi.server.hostname", "192.168.2.1" ) ;
+                        //System.setProperty( "java.rmi.server.hostname", "192.168.2.1" ) ;
                         Registry r = LocateRegistry.createRegistry(7000);
 			r.rebind(DatabaseInterface.LOOKUPNAME, im);
 
