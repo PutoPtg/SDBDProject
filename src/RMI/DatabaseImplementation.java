@@ -33,6 +33,7 @@ public class DatabaseImplementation extends UnicastRemoteObject implements Datab
     public static long[] done_work;
     private static int count;
 
+    SQLinterface sqldata;
     /**
      *
      * @throws RemoteException
@@ -42,6 +43,7 @@ public class DatabaseImplementation extends UnicastRemoteObject implements Datab
         super();	// sets up networking
 
         int i;
+        sqldata = new SQLinterface();
         count = 0; //exclusive of log_check;
         contadorIdUsers = new AtomicInteger(0);
         contadorIdProj = new AtomicInteger(0);
@@ -123,7 +125,6 @@ public class DatabaseImplementation extends UnicastRemoteObject implements Datab
      */
     @Override
     synchronized public String adicionarUser(String nome, String pass) {
-
         for (int i = 0; i < listaUtilizadores.size(); i++) {
             if ((listaUtilizadores.get(i).nome.compareToIgnoreCase(nome) == 0)) {
                 return "user_foud";
@@ -155,7 +156,7 @@ public class DatabaseImplementation extends UnicastRemoteObject implements Datab
      */
     @Override
     synchronized public String login(String nome, String pass) {
-
+        
         for (int i = 0; i < listaUtilizadores.size(); i++) {
             if ((listaUtilizadores.get(i).nome.compareToIgnoreCase(nome) == 0) && (listaUtilizadores.get(i).pass.compareToIgnoreCase(pass) == 0)) {
                 return "user_found";
