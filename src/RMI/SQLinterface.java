@@ -19,27 +19,36 @@ public class SQLinterface {
 //
 //    }
 
-    public synchronized void login(String uname, String pword) {
+    //integrado e testado mas pode ser melhorado
+    public synchronized String login(String uname, String pword) {
         Sql sql = new Sql();
 
-        ResultSet rs = sql.getFromDB("SELECT nome FROM utilizadores WHERE nome LIKE '" + uname + "' AND pass LIKE '" + pword + "'");
+        String query1 = "SELECT nome, pass FROM utilizadores WHERE nome LIKE '" + uname + "'";
+        //String query2 = "SELECT nome FROM utilizadores WHERE nome LIKE '" + uname + "'";
+        ResultSet rs = sql.getFromDB(query1);
         try {
-
-            if (rs.next()) {
+            if(!rs.next()){
+                return "unknown_user";
+            }
+            if (rs.getString("pass").contains(pword)) {
                 System.out.println("Login com sucesso(" + rs.getString(1) + ")");
-
+                return "user_found";
+            } else if (rs.getString("nome").contains(uname)) {
+                System.out.println("Palavra passe Errada!(" + rs.getString(1) + ")");
+                return "wrong_password";
             } else {
-                System.out.println("incorreto");
+                System.out.println("utilizador inexistente");
+                return "unknown_user";
             }
 
         } catch (Exception e) {
-            System.out.println("Erro no login");
-
+            System.out.println("Erro no login: " + e);
+            return "Error in login: " + e;
         }
-
     }
 
-    public static synchronized void addUser(String uname, String password) {
+    //integrado e testado
+    public synchronized String addUser(String uname, String password) {
 
         Sql sql = new Sql();
         System.out.println("antes select");
@@ -52,18 +61,21 @@ public class SQLinterface {
             if (rs.next()) {
                 String txt = rs.getString(1);
                 System.out.println(txt);
-                System.out.println("J� existe");
+                System.out.println("Já existe");
+                return "user_found";
             } else {
                 sql.getFromDB(query2);
                 System.out.println("Adicionado user com nome:" + uname + "");
+                return "accepted_new_user";
             }
         } catch (Exception e) {
             System.out.println("Erro a adicionar user");
+            return "Error in addUser: " + e;
         }
 
     }
 
-    public static synchronized void consultarSaldo(String uname) {
+    public synchronized String consultarSaldo(String uname) {
         Sql sql = new Sql();
         float saldo = 0;
         String query = "SELECT saldo FROM utilizadores WHERE nome LIKE '" + uname + "'";
@@ -73,15 +85,18 @@ public class SQLinterface {
             if (rs.next()) {
                 saldo = rs.getFloat(1);
                 System.out.println("saldo do user " + uname + ":" + saldo + "");
+                return Float.toString(saldo);
             }
+            return "unknown_user";
         } catch (Exception ex) {
             // error executing SQL statement
             System.out.println("Erro a consultar saldo");
+            return "Error in consultarSaldo: " + ex;
         }
 
     }
 
-    public static synchronized String criarProjeto(String nome, String username, String inicio, String fim, float pretendido, float saldo) {
+    public synchronized String criarProjeto(String nome, String username, String inicio, String fim, float pretendido, float saldo) {
         Sql sql = new Sql();
         String query = "Select max(id) from Projetos";
         int id = 0;
@@ -105,7 +120,7 @@ public class SQLinterface {
         return "Done";
     }
 
-    public static synchronized String adicionarRecompensas(int idP, String nome, float valor) {
+    public synchronized String adicionarRecompensas(int idP, String nome, float valor) {
         Sql sql = new Sql();
         String query = "Select max(id) from Projetos";
         int id = 0;
@@ -129,7 +144,7 @@ public class SQLinterface {
         return "Done";
     }
 
-    public static synchronized String eliminarRecompensas(int id) {
+    public synchronized String eliminarRecompensas(int id) {
         Sql sql = new Sql();
         String query = "delete from Recompensas where idR=" + id + "";
         int idPro = 0;
@@ -152,7 +167,7 @@ public class SQLinterface {
         return "Done";
     }
 
-    public static synchronized String mostrarRecompensas(int idp) {
+    public synchronized String mostrarRecompensas(int idp) {
         Sql sql = new Sql();
         String query = "SELECT idP, idR, entrege, nome FROM Recompensas WHERE idP = " + idp;
         ResultSet rs = sql.getFromDB(query);
@@ -174,7 +189,7 @@ public class SQLinterface {
         return "done";
     }
 
-    public static synchronized String mostrarMensagens(String idPro) {
+    public synchronized String mostrarMensagens(String idPro) {
         Sql sql = new Sql();
         String query = "SELECT idP,idU,idM,mensagem FROM mensagem WHERE idP = " + idPro + " ORDER BY time ASC";
         ResultSet rs = sql.getFromDB(query);

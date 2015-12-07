@@ -55,7 +55,7 @@ public class Main_Server {
             count ++;
         //RMI
         try {
-            netConn = (DatabaseInterface) LocateRegistry.getRegistry("192.168.2.1", databasePORT).lookup(DatabaseInterface.LOOKUPNAME);
+            netConn = (DatabaseInterface) LocateRegistry.getRegistry("127.0.0.1", databasePORT).lookup(DatabaseInterface.LOOKUPNAME);
       
             return;
         } catch (RemoteException ex) {
@@ -403,7 +403,7 @@ public class Main_Server {
                         StringTokenizer commandst = new StringTokenizer(clientCommand);
                         command = commandst.nextToken();
                         
-                        //login
+                        //Treats Login
                         if (command.equalsIgnoreCase("login")) {
                             StringTokenizer log_in = new StringTokenizer(clientCommand);
                             log_in.nextToken();
@@ -419,7 +419,8 @@ public class Main_Server {
                                 out.flush();
                             }
                         }
-                        //Register Done
+                        
+                        //Treats New User Register
                         if (command.equalsIgnoreCase("register")) {
                             StringTokenizer reg_ter = new StringTokenizer(clientCommand);
                             reg_ter.nextToken();
@@ -435,7 +436,7 @@ public class Main_Server {
                                 out.flush();
                             }
                         }
-                        //create project done
+                        //Treats create new project
                         if (command.equalsIgnoreCase("create-project")) {
                             StringTokenizer cre_pro = new StringTokenizer(clientCommand);
                             cre_pro.nextToken();
@@ -469,6 +470,7 @@ public class Main_Server {
                             }
                         }
                         
+                        //Treats Delete Project
                         if (command.equalsIgnoreCase("delete-project")) {
                             StringTokenizer cre_pro = new StringTokenizer(clientCommand);
                             cre_pro.nextToken();
@@ -488,9 +490,8 @@ public class Main_Server {
                                 out.flush();
                             }
                         }
-                        
-                       
-
+                           
+                        //Treats List to list Projects by...
                         if (command.equalsIgnoreCase("list")) {
                             String array[] = null;
                             StringTokenizer li_st = new StringTokenizer(clientCommand);
@@ -499,7 +500,8 @@ public class Main_Server {
                             String username = li_st.nextToken();
                             long msgid = Long.valueOf(li_st.nextToken());
                             System.out.println(msgid);
-
+                            
+                        //... User Projects
                             if (condition.equalsIgnoreCase("mine")) {
                                 array = netConn.projetosAdmin(username);
 
@@ -515,7 +517,8 @@ public class Main_Server {
                                 out.println("end");
                                 out.flush();
                             } else {
-
+                                
+                                //... Active Projects
                                 if (condition.equalsIgnoreCase("active")) {
                                     array = netConn.listaProjActuais();
 
@@ -531,6 +534,8 @@ public class Main_Server {
                                     out.println("end");
                                     out.flush();
                                 } else {
+                                    
+                                    //... Old Projects
                                     if (condition.equalsIgnoreCase("old")) {
                                         array = netConn.listaProjAntigos();
 
@@ -546,6 +551,8 @@ public class Main_Server {
                                         out.println("end");
                                         out.flush();
                                     } else {
+                                        
+                                        //... Every single Project
                                         if (condition.equalsIgnoreCase("all")) {
                                             array = netConn.listaProjTodos();
 
@@ -565,7 +572,8 @@ public class Main_Server {
                                 }
                             }
                         }
-
+                        
+                        //Treats Open Project
                         if (command.equalsIgnoreCase("open")) {
                             StringTokenizer li_st = new StringTokenizer(clientCommand);
                             li_st.nextToken();
@@ -607,7 +615,7 @@ public class Main_Server {
                                 out.flush();
                             }  
                         }
-                        //Wallet Check Done
+                        //Treats Wallet or 'Saldo'
                         if (command.equalsIgnoreCase("wallet")) {
                             StringTokenizer wall_et = new StringTokenizer(clientCommand);
                             wall_et.nextToken();
@@ -623,6 +631,7 @@ public class Main_Server {
                             }
                         }
                         
+                        //Treats Wallet or Give money to a project
                         if (command.equalsIgnoreCase("pledge")) {
                             StringTokenizer wall_et = new StringTokenizer(clientCommand);
                             wall_et.nextToken();
@@ -644,6 +653,7 @@ public class Main_Server {
                             }
                         }
 
+                        //Treats adding a reward to a project
                         if (command.equalsIgnoreCase("add-reward")) {
                             StringTokenizer cre_pro = new StringTokenizer(clientCommand);
                             cre_pro.nextToken();
@@ -671,6 +681,7 @@ public class Main_Server {
                             }
                         }
 
+                        //Treats deleting a reward from a project
                         if (command.equalsIgnoreCase("delete-reward")) {
                             StringTokenizer cre_pro = new StringTokenizer(clientCommand);
                             cre_pro.nextToken();
@@ -690,7 +701,9 @@ public class Main_Server {
                                 out.flush();
                             }
                         }
-
+                        
+                        //Hipotetically Treats reward listing from a project
+                        //but it is not finished
                         if (command.equalsIgnoreCase("rewards")) {
                             StringTokenizer wall_et = new StringTokenizer(clientCommand);
                             wall_et.nextToken();

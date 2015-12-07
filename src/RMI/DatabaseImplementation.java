@@ -125,22 +125,27 @@ public class DatabaseImplementation extends UnicastRemoteObject implements Datab
      */
     @Override
     synchronized public String adicionarUser(String nome, String pass) {
-        for (int i = 0; i < listaUtilizadores.size(); i++) {
-            if ((listaUtilizadores.get(i).nome.compareToIgnoreCase(nome) == 0)) {
-                return "user_foud";
-            }
-        }
-        float saldoInicial = 100;
-        User utilizador = new User(nome, pass, saldoInicial);
-        utilizador.id = contadorIdUsers.getAndIncrement();
-        listaUtilizadores.add(utilizador);
-        try {
-            guardar();
-	} catch (IOException e) {
-            System.out.println("erro a guardar");
-	}
-
-        return "accepted_new_user";
+        
+        return (sqldata.addUser(nome, pass));
+        
+        
+//      //OLD CODE 1st Sprint!
+//        for (int i = 0; i < listaUtilizadores.size(); i++) {
+//            if ((listaUtilizadores.get(i).nome.compareToIgnoreCase(nome) == 0)) {
+//                return "user_foud";
+//            }
+//        }
+//        float saldoInicial = 100;
+//        User utilizador = new User(nome, pass, saldoInicial);
+//        utilizador.id = contadorIdUsers.getAndIncrement();
+//        listaUtilizadores.add(utilizador);
+//        try {
+//            guardar();
+//	} catch (IOException e) {
+//            System.out.println("erro a guardar");
+//	}
+//
+//        return "accepted_new_user";
 
     }
 
@@ -157,15 +162,18 @@ public class DatabaseImplementation extends UnicastRemoteObject implements Datab
     @Override
     synchronized public String login(String nome, String pass) {
         
-        for (int i = 0; i < listaUtilizadores.size(); i++) {
-            if ((listaUtilizadores.get(i).nome.compareToIgnoreCase(nome) == 0) && (listaUtilizadores.get(i).pass.compareToIgnoreCase(pass) == 0)) {
-                return "user_found";
-            }
-            if ((listaUtilizadores.get(i).nome.compareToIgnoreCase(nome) == 0) && (listaUtilizadores.get(i).pass.compareToIgnoreCase(pass) != 0)) {
-                return "wrong_password";
-            }
-        }
-        return "unknown_user";
+        return (sqldata.login(nome, pass));
+        
+//        //OLD CODE 1st Sprint!
+//        for (int i = 0; i < listaUtilizadores.size(); i++) {
+//            if ((listaUtilizadores.get(i).nome.compareToIgnoreCase(nome) == 0) && (listaUtilizadores.get(i).pass.compareToIgnoreCase(pass) == 0)) {
+//                return "user_found";
+//            }
+//            if ((listaUtilizadores.get(i).nome.compareToIgnoreCase(nome) == 0) && (listaUtilizadores.get(i).pass.compareToIgnoreCase(pass) != 0)) {
+//                return "wrong_password";
+//            }
+//        }
+//        return "unknown_user";
     }
 
     /**
@@ -177,8 +185,12 @@ public class DatabaseImplementation extends UnicastRemoteObject implements Datab
      */
     @Override
     public String consultarSaldo(String nome) {
-        User u = findUser(nome);
-        return "Saldo: " + u.getSaldo() + "\n";
+        
+        return "Saldo: " + sqldata.consultarSaldo(nome) + "\n";
+        
+//        //OLD CODE 1st Sprint!
+//        User u = findUser(nome);
+//        return "Saldo: " + u.getSaldo() + "\n";
     }
 
     /**

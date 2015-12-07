@@ -2,7 +2,7 @@
 # But it is not used right now
 Primary
 # IP from the own Server
-192.168.2.1
+127.0.0.1
 # Port from the own Server
 6666
 # IP from the Twin Server
@@ -14,7 +14,7 @@ Primary
 # RMI Port
 7000
 # Name of the Twin Server for udp search
-Pulga
+Tugatatil
 # UDP Port
 9999
 
