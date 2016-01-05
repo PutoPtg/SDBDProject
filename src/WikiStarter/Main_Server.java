@@ -24,7 +24,9 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
+import java.sql.SQLException;
 import java.text.DateFormat;
+import java.util.Date;
 
 public class Main_Server {
 
@@ -42,52 +44,50 @@ public class Main_Server {
     boolean ServerOn = true;
 
     DatabaseInterface netConn = null; //RMI
-    
+
     //Config file Name
     private static String fileName = "ficheiros/Config1.txt";
 
-   
-    synchronized private void rmiConnect(){
+    synchronized private void rmiConnect() {
         int count = 0;
 
+        while (count < 3) {
+            count++;
+            //RMI
+            try {
+                netConn = (DatabaseInterface) Naming.lookup("//localhost/DatabaseInterface");
+                //netConn = (DatabaseInterface) LocateRegistry.getRegistry("127.0.0.1", databasePORT).lookup(DatabaseInterface.LOOKUPNAME);
 
-        while (count < 3){
-            count ++;
-        //RMI
-        try {
-            netConn = (DatabaseInterface) LocateRegistry.getRegistry("127.0.0.1", databasePORT).lookup(DatabaseInterface.LOOKUPNAME);
-      
-            return;
-        } catch (RemoteException ex) {
+                return;
+            } catch (RemoteException ex) {
                 try {
                     //Logger.getLogger(Main_Server.class.getName()).log(Level.SEVERE, null, ex);
                     sleep(3000);
                 } catch (InterruptedException ex1) {
                     Logger.getLogger(Main_Server.class.getName()).log(Level.SEVERE, null, ex1);
                 }
-          
-        } catch (NotBoundException ex) {
-            //Logger.getLogger(Main_Server.class.getName()).log(Level.SEVERE, null, ex);
-            try {
+
+            } catch (NotBoundException ex) {
+                //Logger.getLogger(Main_Server.class.getName()).log(Level.SEVERE, null, ex);
+                try {
                     //Logger.getLogger(Main_Server.class.getName()).log(Level.SEVERE, null, ex);
                     sleep(3000);
                 } catch (InterruptedException ex1) {
                     Logger.getLogger(Main_Server.class.getName()).log(Level.SEVERE, null, ex1);
                 }
-        }
-        
+            } catch (MalformedURLException ex) {
+                Logger.getLogger(Main_Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
         }
         System.out.println("RMI Unreachable");
-            exit (-1);
+        exit(-1);
     }
-    
-    
-    
-    
+
     public Main_Server() {
-        
-            // RMI
-            rmiConnect();
+
+        // RMI
+        rmiConnect();
         //UDP
         UDP_Ping_Pong pong = new UDP_Ping_Pong();
         pong.start();
@@ -138,58 +138,58 @@ public class Main_Server {
             BufferedReader bufferedReader = new BufferedReader(fileReader);
 
             line = bufferedReader.readLine();
-            while(line.contains("#")){
-            line = bufferedReader.readLine();
-        }
+            while (line.contains("#")) {
+                line = bufferedReader.readLine();
+            }
             if ("Primary".equals(line)) {
                 primary = true;
             }
             line = bufferedReader.readLine();
-            while(line.contains("#")){
-            line = bufferedReader.readLine();
-        }
+            while (line.contains("#")) {
+                line = bufferedReader.readLine();
+            }
             ownIP = line;
             System.out.println("My IP: " + ownIP);
             line = bufferedReader.readLine();
-            while(line.contains("#")){
-            line = bufferedReader.readLine();
-        }
+            while (line.contains("#")) {
+                line = bufferedReader.readLine();
+            }
             ownPORT = Integer.parseInt(line);
             System.out.println("My PORT: " + ownPORT);
             line = bufferedReader.readLine();
-            while(line.contains("#")){
-            line = bufferedReader.readLine();
-        }
+            while (line.contains("#")) {
+                line = bufferedReader.readLine();
+            }
             twinIP = line;
             System.out.println("My Twin IP: " + twinIP);
             line = bufferedReader.readLine();
-            while(line.contains("#")){
-            line = bufferedReader.readLine();
-        }
+            while (line.contains("#")) {
+                line = bufferedReader.readLine();
+            }
             twinPORT = Integer.parseInt(line);
             System.out.println("My Twin PORT: " + twinPORT);
             line = bufferedReader.readLine();
-            while(line.contains("#")){
-            line = bufferedReader.readLine();
-        }
+            while (line.contains("#")) {
+                line = bufferedReader.readLine();
+            }
             databaseIP = line;
-           //not used
+            //not used
             line = bufferedReader.readLine();
-            while(line.contains("#")){
-            line = bufferedReader.readLine();
-        }
+            while (line.contains("#")) {
+                line = bufferedReader.readLine();
+            }
             databasePORT = Integer.parseInt(line);
             System.out.println("My RMI SocketT: " + databasePORT);
             line = bufferedReader.readLine();
-            while(line.contains("#")){
-            line = bufferedReader.readLine();
-        }
+            while (line.contains("#")) {
+                line = bufferedReader.readLine();
+            }
             twinNAME = line;
             System.out.println("My twin's name: " + twinNAME);
             line = bufferedReader.readLine();
-            while(line.contains("#")){
-            line = bufferedReader.readLine();
-        }
+            while (line.contains("#")) {
+                line = bufferedReader.readLine();
+            }
             udpPORT = Integer.parseInt(line);
             System.out.println("Conventioned UDP Port: " + udpPORT);
 
@@ -402,7 +402,7 @@ public class Main_Server {
                     } else {
                         StringTokenizer commandst = new StringTokenizer(clientCommand);
                         command = commandst.nextToken();
-                        
+
                         //Treats Login
                         if (command.equalsIgnoreCase("login")) {
                             StringTokenizer log_in = new StringTokenizer(clientCommand);
@@ -419,7 +419,7 @@ public class Main_Server {
                                 out.flush();
                             }
                         }
-                        
+
                         //Treats New User Register
                         if (command.equalsIgnoreCase("register")) {
                             StringTokenizer reg_ter = new StringTokenizer(clientCommand);
@@ -429,7 +429,7 @@ public class Main_Server {
                             long msgid = Long.valueOf(reg_ter.nextToken());
                             System.out.println(msgid);
                             if (netConn.log_check(msgid) == false) {
-                                out.println(netConn.adicionarUser(username, password));
+                                out.println(netConn.addUser(username, password));
                                 out.flush();
                             } else {
                                 out.println("already_done");
@@ -444,32 +444,35 @@ public class Main_Server {
                             projname = projname.substring(1);
                             System.out.println(projname);
                             String description = cre_pro.nextToken(".");
-                            
+
                             System.out.println(description);
                             String deadline = cre_pro.nextToken(".");
-                            
+
                             float amount = Float.valueOf(cre_pro.nextToken("."));
                             String username = cre_pro.nextToken(".");
                             long msgid = Long.valueOf(cre_pro.nextToken("."));
                             System.out.println(msgid);
 
-                            DateFormat df = new SimpleDateFormat("HHmmddMMyyyy");
-                            Calendar caldead = Calendar.getInstance();
-                            caldead.setTime(df.parse(deadline));
-                            System.out.println(caldead);
-                            Calendar today = Calendar.getInstance();
-                            System.out.println(today);
+                            //DateFormat df = new SimpleDateFormat("yy-mm-dd");
+                            //Calendar caldead = Calendar.getInstance();
+                            //caldead.setTime(df.parse(deadline));
+                            System.out.println(deadline);
+                            //Calendar today = Calendar.getInstance();
+                            //String todayf = df.
+                            Date today = new Date();
+                            String todayf= new SimpleDateFormat("yy-MM-dd").format(today);
+                            System.out.println(todayf);
                             System.out.println(amount);
 
                             if (netConn.log_check(msgid) == false) {
-                                out.println(netConn.criaProjeto(username, projname, description, today, caldead, amount));
+                                out.println(netConn.criarProjeto(projname, username, description, todayf, deadline, amount));
                                 out.flush();
                             } else {
                                 out.println("already_done");
                                 out.flush();
                             }
                         }
-                        
+
                         //Treats Delete Project
                         if (command.equalsIgnoreCase("delete-project")) {
                             StringTokenizer cre_pro = new StringTokenizer(clientCommand);
@@ -479,18 +482,17 @@ public class Main_Server {
                             long msgid = Long.valueOf(cre_pro.nextToken());
                             System.out.println(msgid);
 
-                       
                             int idproj = Integer.valueOf(id);
 
                             if (netConn.log_check(msgid) == false) {
-                                out.println(netConn.eliminaProjeto(username, idproj));
+                                out.println(netConn.cancelarProjeto(username, idproj));
                                 out.flush();
                             } else {
                                 out.println("already_done");
                                 out.flush();
                             }
                         }
-                           
+
                         //Treats List to list Projects by...
                         if (command.equalsIgnoreCase("list")) {
                             String array[] = null;
@@ -500,79 +502,42 @@ public class Main_Server {
                             String username = li_st.nextToken();
                             long msgid = Long.valueOf(li_st.nextToken());
                             System.out.println(msgid);
-                            
-                        //... User Projects
+
+                            //... User Projects
                             if (condition.equalsIgnoreCase("mine")) {
-                                array = netConn.projetosAdmin(username);
-
-                                int temp = Integer.valueOf(array[0]);
-                                int count = 1;
-                                while (count <= temp) {
-
-                                    System.out.println(array[count]);
-                                    out.println(array[count]);
-                                    out.flush();
-                                    count++;
-                                }
+                                String ray = netConn.projetosAdmin(username);
+                                System.out.println(ray);
+                                out.println(ray);
+                                out.flush();
                                 out.println("end");
                                 out.flush();
-                            } else {
-                                
-                                //... Active Projects
-                                if (condition.equalsIgnoreCase("active")) {
-                                    array = netConn.listaProjActuais();
-
-                                    int temp = Integer.valueOf(array[0]);
-                                    int count = 1;
-                                    while (count <= temp) {
-
-                                        System.out.println(array[count]);
-                                        out.println(array[count]);
-                                        out.flush();
-                                        count++;
-                                    }
+                            } else //... Active Projects
+                             if (condition.equalsIgnoreCase("active")) {
+                                    String ray = netConn.listaProjetosActuais();
+                                    System.out.println(ray);
+                                    out.println(ray);
+                                    out.flush();
                                     out.println("end");
                                     out.flush();
-                                } else {
-                                    
-                                    //... Old Projects
-                                    if (condition.equalsIgnoreCase("old")) {
-                                        array = netConn.listaProjAntigos();
-
-                                        int temp = Integer.valueOf(array[0]);
-                                        int count = 1;
-                                        while (count <= temp) {
-
-                                            System.out.println(array[count]);
-                                            out.println(array[count]);
-                                            out.flush();
-                                            count++;
-                                        }
+                                } else //... Old Projects
+                                 if (condition.equalsIgnoreCase("old")) {
+                                        String ray = netConn.listaProjetosAntigos();
+                                        System.out.println(ray);
+                                        out.println(ray);
+                                        out.flush();
                                         out.println("end");
                                         out.flush();
-                                    } else {
-                                        
-                                        //... Every single Project
-                                        if (condition.equalsIgnoreCase("all")) {
-                                            array = netConn.listaProjTodos();
-
-                                            int temp = Integer.valueOf(array[0]);
-                                            int count = 1;
-                                            while (count <= temp) {
-
-                                                System.out.println(array[count]);
-                                                out.println(array[count]);
-                                                out.flush();
-                                                count++;
-                                            }
+                                    } else //... Every single Project
+                                     if (condition.equalsIgnoreCase("all")) {
+                                            String ray = netConn.listaProjTodos();
+                                            System.out.println(ray);
+                                            out.println(ray);
+                                            out.flush();
                                             out.println("end");
                                             out.flush();
                                         }
-                                    }
-                                }
-                            }
                         }
-                        
+
                         //Treats Open Project
                         if (command.equalsIgnoreCase("open")) {
                             StringTokenizer li_st = new StringTokenizer(clientCommand);
@@ -582,39 +547,24 @@ public class Main_Server {
                             System.out.println(msgid);
 
                             int cond = Integer.valueOf(condition);
-                            
-                            String array[] = null; 
-                            array = netConn.verProjeto(cond);
-                            if(!"unknown".equalsIgnoreCase(array[0])){
-                                int count = 0;
-                                String std;
-                                while (count < 6) { //the description has a fixed number of camps.
-                                    std = array [count];
-                                    System.out.println(std);
-                                    out.println(std);
-                                    out.flush();
-                                    count++;
-                                }
-                                
 
-                               array = netConn.listaRecompensas(cond);
-                                
-                                while (count < Integer.valueOf(array [0])) { //the description has a fixed number of camps.
-                                    std = array [count];
-                                    System.out.println(std);
-                                    out.println(std);
-                                    out.flush();
-                                    count++;
-                                }
-                                
-                                out.println("end");
-                                out.flush();
-                            }     else{
-                                out.println("Project Not Found");
-                                out.println("end");
-                                out.flush();
-                            }  
+                            String condS = Integer.toString(cond);
+
+                            String res = null;
+                            try {
+                                res = netConn.openProject(condS);
+                            } catch (RemoteException ex) {
+                                Logger.getLogger(Main_Server.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (SQLException ex) {
+                                Logger.getLogger(Main_Server.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+
+                            out.println(res);
+                            out.flush();
+                            out.println("end");
+                            out.flush();
                         }
+
                         //Treats Wallet or 'Saldo'
                         if (command.equalsIgnoreCase("wallet")) {
                             StringTokenizer wall_et = new StringTokenizer(clientCommand);
@@ -630,7 +580,7 @@ public class Main_Server {
                                 out.flush();
                             }
                         }
-                        
+
                         //Treats Wallet or Give money to a project
                         if (command.equalsIgnoreCase("pledge")) {
                             StringTokenizer wall_et = new StringTokenizer(clientCommand);
@@ -640,12 +590,12 @@ public class Main_Server {
                             String username = wall_et.nextToken();
                             long msgid = Long.valueOf(wall_et.nextToken());
                             System.out.println(msgid);
-                            
+
                             int id = Integer.valueOf(idP);
                             float money = Float.valueOf(amount);
-                            
+
                             if (netConn.log_check(msgid) == false) {
-                                out.println(netConn.doarDinheiro(username, id, money));
+                                out.println(netConn.doar(username, id, money, "0"));
                                 out.flush();
                             } else {
                                 out.println("already_done");
@@ -653,99 +603,101 @@ public class Main_Server {
                             }
                         }
 
-                        //Treats adding a reward to a project
-                        if (command.equalsIgnoreCase("add-reward")) {
-                            StringTokenizer cre_pro = new StringTokenizer(clientCommand);
-                            cre_pro.nextToken();
-                            int projid = Integer.valueOf(cre_pro.nextToken());
-                            //System.out.println(projname);
-                            String description = cre_pro.nextToken(".");
-                            //System.out.println(description);
-                            String rwdname = cre_pro.nextToken(" ");
-                            //System.out.println(deadline);
-                            float amount = Float.valueOf(cre_pro.nextToken());
-                            String username = cre_pro.nextToken();
-                            long msgid = Long.valueOf(cre_pro.nextToken());
-                            System.out.println(msgid);
-
-                            if (netConn.log_check(msgid) == false) {
-                                System.out.println("aqui! pedido");
-                                String reply;
-                                reply = netConn.adicionarRecompensaProj(projid, rwdname, description, amount);
-                                System.out.println(reply);
-                                out.println(reply);
-                                out.flush();
-                            } else {
-                                out.println("already_done");
-                                out.flush();
-                            }
-                        }
-
-                        //Treats deleting a reward from a project
-                        if (command.equalsIgnoreCase("delete-reward")) {
-                            StringTokenizer cre_pro = new StringTokenizer(clientCommand);
-                            cre_pro.nextToken();
-                            int projid = Integer.valueOf(cre_pro.nextToken());
-                            //System.out.println(projname);
-                            String rwdname = cre_pro.nextToken(" ");
-                            //System.out.println(deadline);
-                            String username = cre_pro.nextToken();
-                            long msgid = Long.valueOf(cre_pro.nextToken());
-                            System.out.println(msgid);
-
-                            if (netConn.log_check(msgid) == false) {
-                                out.println(netConn.removeRecompensa(username, projid, rwdname));
-                                out.flush();
-                            } else {
-                                out.println("already_done");
-                                out.flush();
-                            }
-                        }
-                        
-                        //Hipotetically Treats reward listing from a project
-                        //but it is not finished
-                        if (command.equalsIgnoreCase("rewards")) {
-                            StringTokenizer wall_et = new StringTokenizer(clientCommand);
-                            wall_et.nextToken();
-                            String username = wall_et.nextToken();
-                            long msgid = Long.valueOf(wall_et.nextToken());
-                            System.out.println(msgid);
-
-                            Message msg = new Message(msgid);
-                            msg.set_request("rewards");
-                            msg.set_username(username);
-
-                            //part where I send message via RMI
-                            //just for tests
-                            String[][] anArray;
-                            anArray = new String[1][8];
-                            anArray[0][0] = "Rewards";
-                            anArray[0][1] = "A Ribbon";
-                            anArray[0][2] = "A new Goverment";
-                            anArray[0][3] = "bla";
-                            anArray[0][4] = "bla";
-                            anArray[0][5] = "bla";
-                            anArray[0][6] = "bla";
-                            anArray[0][7] = "Tities";
-
-                            msg.set_answer_table(anArray);
-                            msg.set_answer_int(8);
-                            //and receive a reply
-
-                            int count = 0;
-                            String std;
-                            while (count < msg.get_answer_int()) {
-                                std = msg.get_answer_table()[0][count];
-                                System.out.println(std);
-                                out.println(std);
-                                out.flush();
-                                count++;
-                            }
-                            out.println("end");
-                            out.flush();
-                        }
-
+//                        //Treats adding a reward to a project
+//                        if (command.equalsIgnoreCase("add-reward")) {
+//                            StringTokenizer cre_pro = new StringTokenizer(clientCommand);
+//                            cre_pro.nextToken();
+//                            int projid = Integer.valueOf(cre_pro.nextToken());
+//                            //System.out.println(projname);
+//                            String description = cre_pro.nextToken(".");
+//                            //System.out.println(description);
+//                            String rwdname = cre_pro.nextToken(" ");
+//                            //System.out.println(deadline);
+//                            float amount = Float.valueOf(cre_pro.nextToken());
+//                            String username = cre_pro.nextToken();
+//                            long msgid = Long.valueOf(cre_pro.nextToken());
+//                            System.out.println(msgid);
+//
+//                            if (netConn.log_check(msgid) == false) {
+//                                System.out.println("aqui! pedido");
+//                                String reply;
+//                                reply = netConn.adicionarRecompensaProj(projid, rwdname, description, amount);
+//                                System.out.println(reply);
+//                                out.println(reply);
+//                                out.flush();
+//                            } else {
+//                                out.println("already_done");
+//                                out.flush();
+//                            }
+//                        }
+//
+//                        //Treats deleting a reward from a project
+//                        if (command.equalsIgnoreCase("delete-reward")) {
+//                            StringTokenizer cre_pro = new StringTokenizer(clientCommand);
+//                            cre_pro.nextToken();
+//                            int projid = Integer.valueOf(cre_pro.nextToken());
+//                            //System.out.println(projname);
+//                            String rwdname = cre_pro.nextToken(" ");
+//                            //System.out.println(deadline);
+//                            String username = cre_pro.nextToken();
+//                            long msgid = Long.valueOf(cre_pro.nextToken());
+//                            System.out.println(msgid);
+//
+//                            if (netConn.log_check(msgid) == false) {
+//                                out.println(netConn.removeRecompensa(username, projid, rwdname));
+//                                out.flush();
+//                            } else {
+//                                out.println("already_done");
+//                                out.flush();
+//                            }
+//                        }
+//                        
+//                        //Hipotetically Treats reward listing from a project
+//                        //but it is not finished
+//                        if (command.equalsIgnoreCase("rewards")) {
+//                            StringTokenizer wall_et = new StringTokenizer(clientCommand);
+//                            wall_et.nextToken();
+//                            String username = wall_et.nextToken();
+//                            long msgid = Long.valueOf(wall_et.nextToken());
+//                            System.out.println(msgid);
+//
+//                            Message msg = new Message(msgid);
+//                            msg.set_request("rewards");
+//                            msg.set_username(username);
+//
+//                            //part where I send message via RMI
+//                            //just for tests
+//                            String[][] anArray;
+//                            anArray = new String[1][8];
+//                            anArray[0][0] = "Rewards";
+//                            anArray[0][1] = "A Ribbon";
+//                            anArray[0][2] = "A new Goverment";
+//                            anArray[0][3] = "bla";
+//                            anArray[0][4] = "bla";
+//                            anArray[0][5] = "bla";
+//                            anArray[0][6] = "bla";
+//                            anArray[0][7] = "Tities";
+//
+//                            msg.set_answer_table(anArray);
+//                            msg.set_answer_int(8);
+//                            //and receive a reply
+//
+//                            int count = 0;
+//                            String std;
+//                            while (count < msg.get_answer_int()) {
+//                                std = msg.get_answer_table()[0][count];
+//                                System.out.println(std);
+//                                out.println(std);
+//                                out.flush();
+//                                count++;
+//                            }
+//                            out.println("end");
+//                            out.flush();
+//                        }
                         // Process it 
+                        
+                        
+                        netConn.updateVAL();
                         System.out.println("Processed!");
                     }
                 }

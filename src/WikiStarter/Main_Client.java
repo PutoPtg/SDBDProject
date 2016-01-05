@@ -683,7 +683,7 @@ static int soc;
             System.out.println("Project " + pname + ":");
             System.out.print("Description: ");
             description = str.get_string("Description");
-            System.out.print("Deadline in format HHmmddMMyyyy: ");//no failsafe implemented!
+            System.out.print("Deadline in format yyMMdd: ");//no failsafe implemented!
             deadline = str.get_string("Deadline");
             System.out.print("Ammount: ");
             ammount = str.get_string("Ammount");
@@ -819,7 +819,7 @@ static int soc;
             count++;
         }
 
-        if (count == 2) {
+        if (count == 3) {
 
             message_number = Calendar.getInstance().getTimeInMillis();
             msgID = Long.toString(message_number);
